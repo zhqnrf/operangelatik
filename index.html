@@ -41,13 +41,13 @@
                 </div>
                 <div class="flex items-center space-x-2">
                     <button onclick="exportData()" class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700" title="Backup Data">
-                        ðŸ“ Backup
+                        📁 Backup
                     </button>
                     <button onclick="importData()" class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700" title="Restore Data">
-                        ðŸ“¥ Restore
+                        📥 Restore
                     </button>
                     <button onclick="clearAllData()" class="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700" title="Hapus Semua Data">
-                        ðŸ—‘ï¸ Reset
+                        🗑️ Reset
                     </button>
                 </div>
             </div>
@@ -58,16 +58,16 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div class="flex space-x-1 bg-gray-100 p-1 rounded-lg">
             <button onclick="showTab('dashboard')" id="tab-dashboard" class="flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors tab-active">
-                ðŸ“Š Dashboard
+                📊 Dashboard
             </button>
             <button onclick="showTab('input-pasien')" id="tab-input-pasien" class="flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors tab-inactive">
-                ðŸ“ Input Pasien Baru
+                📝 Input Pasien Baru
             </button>
             <button onclick="showTab('rawat-inap')" id="tab-rawat-inap" class="flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors tab-inactive">
-                ðŸ¥ Pasien Rawat Inap
+                🏥 Pasien Rawat Inap
             </button>
             <button onclick="showTab('operan-harian')" id="tab-operan-harian" class="flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors tab-inactive">
-                ðŸ‘©â€âš•ï¸ Operan Harian Perawat
+                👩‍⚕️ Operan Harian Perawat
             </button>
         </div>
     </div>
@@ -98,7 +98,7 @@
             <!-- Motivational Quote -->
             <div class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg p-6 mb-6">
                 <div class="flex items-center">
-                    <div class="text-4xl mr-4">ðŸ’ª</div>
+                    <div class="text-4xl mr-4">💪</div>
                     <div>
                         <p id="motivationalQuote" class="text-lg font-medium mb-2"></p>
                         <p class="text-sm opacity-90">- Semangat untuk hari ini -</p>
@@ -109,7 +109,7 @@
             <!-- Patient Overview -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div class="bg-white rounded-lg shadow p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">ðŸ“Š Ringkasan Pasien</h3>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">📊 Ringkasan Pasien</h3>
                     <div class="space-y-3">
                         <div class="flex justify-between items-center p-3 bg-orange-50 rounded">
                             <span class="text-sm font-medium">Pasien TB</span>
@@ -127,7 +127,7 @@
                 </div>
                 
                 <div class="bg-white rounded-lg shadow p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">ðŸ‘¨â€âš•ï¸ Dokter Bertugas</h3>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">👨‍⚕️ Dokter Bertugas</h3>
                     <div id="doctorDetails" class="space-y-2 max-h-64 overflow-y-auto">
                         <p class="text-gray-500 text-center py-8">Belum ada pasien terdaftar</p>
                     </div>
@@ -160,7 +160,7 @@
             <div class="bg-white rounded-lg shadow">
                 <!-- Header -->
                 <div class="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 rounded-t-lg">
-                    <h2 class="text-2xl font-bold">ðŸ“ Registrasi Pasien Rawat Inap Baru</h2>
+                    <h2 class="text-2xl font-bold">📝 Registrasi Pasien Rawat Inap Baru</h2>
                     <p class="text-blue-100 mt-1">Lengkapi data pasien dengan cepat dan akurat</p>
                 </div>
                 
@@ -185,8 +185,8 @@
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Jenis Kelamin *</label>
                                     <select id="newPatientGender" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" required>
                                         <option value="">Pilih</option>
-                                        <option value="Laki-laki">ðŸ‘¨ Laki-laki</option>
-                                        <option value="Perempuan">ðŸ‘© Perempuan</option>
+                                        <option value="Laki-laki">👨 Laki-laki</option>
+                                        <option value="Perempuan">👩 Perempuan</option>
                                     </select>
                                 </div>
                                 <div>
@@ -201,12 +201,12 @@
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Penjamin *</label>
                                     <select id="newPatientInsurance" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" required>
                                         <option value="">Pilih penjamin</option>
-                                        <option value="BPJS Kelas 1">ðŸ¥ BPJS Kelas 1</option>
-                                        <option value="BPJS Kelas 2">ðŸ¥ BPJS Kelas 2</option>
-                                        <option value="BPJS Kelas 3">ðŸ¥ BPJS Kelas 3</option>
-                                        <option value="BPJS PBI">ðŸ¥ BPJS PBI</option>
-                                        <option value="BPJS PBID">ðŸ¥ BPJS PBID</option>
-                                        <option value="Lainnya">ðŸ’³ Lainnya</option>
+                                        <option value="BPJS Kelas 1">🏥 BPJS Kelas 1</option>
+                                        <option value="BPJS Kelas 2">🏥 BPJS Kelas 2</option>
+                                        <option value="BPJS Kelas 3">🏥 BPJS Kelas 3</option>
+                                        <option value="BPJS PBI">🏥 BPJS PBI</option>
+                                        <option value="BPJS PBID">🏥 BPJS PBID</option>
+                                        <option value="Lainnya">💳 Lainnya</option>
                                     </select>
                                 </div>
                             </div>
@@ -215,19 +215,19 @@
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Ruang Rawat *</label>
                                     <select id="newPatientRoom" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" required>
                                         <option value="">Pilih ruang</option>
-                                        <optgroup label="ðŸ  Lantai 1">
+                                        <optgroup label="🏠 Lantai 1">
                                             <option value="Gelatik 1A">Gelatik 1A</option>
                                             <option value="Gelatik 1B">Gelatik 1B</option>
                                             <option value="Gelatik 1C">Gelatik 1C</option>
                                             <option value="Gelatik 1D">Gelatik 1D</option>
                                         </optgroup>
-                                        <optgroup label="ðŸ  Lantai 2">
+                                        <optgroup label="🏠 Lantai 2">
                                             <option value="Gelatik 2A">Gelatik 2A</option>
                                             <option value="Gelatik 2B">Gelatik 2B</option>
                                             <option value="Gelatik 2C">Gelatik 2C</option>
                                             <option value="Gelatik 2D">Gelatik 2D</option>
                                         </optgroup>
-                                        <optgroup label="ðŸ  Lantai 3">
+                                        <optgroup label="🏠 Lantai 3">
                                             <option value="Gelatik 3A">Gelatik 3A</option>
                                             <option value="Gelatik 3B">Gelatik 3B</option>
                                             <option value="Gelatik 3C">Gelatik 3C</option>
@@ -281,7 +281,7 @@
                             <div id="doctorContainer" class="space-y-2">
                                 <div class="flex gap-2">
                                     <select class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm doctor-select" required>
-                                        <option value="">ðŸ‘¨â€âš•ï¸ Pilih dokter utama</option>
+                                        <option value="">👨‍⚕️ Pilih dokter utama</option>
                                     </select>
                                     <button type="button" onclick="addDoctorField()" class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 text-sm font-medium">+ Dokter</button>
                                 </div>
@@ -297,7 +297,7 @@
                         </div>
                         <div class="bg-orange-50 rounded-lg p-4">
                             <div class="flex justify-between items-center mb-3">
-                                <span class="text-sm font-medium text-gray-700">ðŸ’Š Obat-obatan</span>
+                                <span class="text-sm font-medium text-gray-700">💊 Obat-obatan</span>
                                 <button type="button" onclick="addMedicationRow()" class="bg-orange-600 text-white px-4 py-2 rounded-md text-sm hover:bg-orange-700 font-medium">+ Tambah Obat</button>
                             </div>
                             <div id="medicationContainer" class="space-y-2">
@@ -314,17 +314,17 @@
                                     </div>
                                     <select class="col-span-2 px-2 py-2 border border-gray-300 rounded text-sm medication-route">
                                         <option value="">Pilih</option>
-                                        <option value="PO">ðŸ’Š PO</option>
-                                        <option value="IV">ðŸ’‰ IV</option>
-                                        <option value="IM">ðŸ’‰ IM</option>
-                                        <option value="SC">ðŸ’‰ SC</option>
-                                        <option value="Topikal">ðŸ§´ Topikal</option>
-                                        <option value="Inhalasi">ðŸŒ¬ï¸ Inhalasi</option>
-                                        <option value="Rektal">ðŸ”¸ Rektal</option>
-                                        <option value="Sublingual">ðŸ‘… Sublingual</option>
+                                        <option value="PO">💊 PO</option>
+                                        <option value="IV">💉 IV</option>
+                                        <option value="IM">💉 IM</option>
+                                        <option value="SC">💉 SC</option>
+                                        <option value="Topikal">🧴 Topikal</option>
+                                        <option value="Inhalasi">🌬️ Inhalasi</option>
+                                        <option value="Rektal">🔸 Rektal</option>
+                                        <option value="Sublingual">👅 Sublingual</option>
                                     </select>
                                     <input type="text" class="col-span-4 px-2 py-2 border border-gray-300 rounded text-sm medication-dose" placeholder="500mg 3x1">
-                                    <button type="button" onclick="removeMedicationRow(this)" class="col-span-1 bg-red-500 text-white px-2 py-2 rounded text-xs hover:bg-red-600">Ã—</button>
+                                    <button type="button" onclick="removeMedicationRow(this)" class="col-span-1 bg-red-500 text-white px-2 py-2 rounded text-xs hover:bg-red-600">×</button>
                                 </div>
                             </div>
                         </div>
@@ -333,7 +333,7 @@
                     <!-- Submit Button -->
                     <div class="flex justify-center pt-6 border-t border-gray-200">
                         <button type="submit" class="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-3 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-semibold text-lg shadow-lg">
-                            âœ… Daftarkan Pasien
+                            ✅ Daftarkan Pasien
                         </button>
                     </div>
                 </form>
@@ -350,8 +350,8 @@
                             <h3 class="text-lg font-semibold text-gray-900">Daftar Pasien</h3>
                             <div class="flex gap-2 mt-2">
                                 <button onclick="filterPatients('all')" id="filter-all" class="px-2 py-1 text-xs bg-blue-600 text-white rounded">Semua</button>
-                                <button onclick="filterPatients('male')" id="filter-male" class="px-2 py-1 text-xs bg-gray-200 text-gray-700 rounded">ðŸ‘¨ L</button>
-                                <button onclick="filterPatients('female')" id="filter-female" class="px-2 py-1 text-xs bg-gray-200 text-gray-700 rounded">ðŸ‘© P</button>
+                                <button onclick="filterPatients('male')" id="filter-male" class="px-2 py-1 text-xs bg-gray-200 text-gray-700 rounded">👨 L</button>
+                                <button onclick="filterPatients('female')" id="filter-female" class="px-2 py-1 text-xs bg-gray-200 text-gray-700 rounded">👩 P</button>
                             </div>
                         </div>
                         <div id="inpatientList">
@@ -384,8 +384,8 @@
                             <h3 class="text-lg font-semibold text-gray-900">Pilih Pasien</h3>
                             <div class="flex gap-2 mt-2">
                                 <button onclick="filterHandoverPatients('all')" id="handover-filter-all" class="px-2 py-1 text-xs bg-blue-600 text-white rounded">Semua</button>
-                                <button onclick="filterHandoverPatients('male')" id="handover-filter-male" class="px-2 py-1 text-xs bg-gray-200 text-gray-700 rounded">ðŸ‘¨ L</button>
-                                <button onclick="filterHandoverPatients('female')" id="handover-filter-female" class="px-2 py-1 text-xs bg-gray-200 text-gray-700 rounded">ðŸ‘© P</button>
+                                <button onclick="filterHandoverPatients('male')" id="handover-filter-male" class="px-2 py-1 text-xs bg-gray-200 text-gray-700 rounded">👨 L</button>
+                                <button onclick="filterHandoverPatients('female')" id="handover-filter-female" class="px-2 py-1 text-xs bg-gray-200 text-gray-700 rounded">👩 P</button>
                             </div>
                         </div>
                         <div id="handoverPatientList">
@@ -468,8 +468,8 @@
         }
 
         function clearAllData() {
-            if (confirm('âš ï¸ Apakah Anda yakin ingin menghapus SEMUA data? Data yang sudah dihapus tidak dapat dikembalikan!')) {
-                if (confirm('ðŸš¨ KONFIRMASI TERAKHIR: Semua data pasien, operan harian, dan jadwal obat akan dihapus permanen!')) {
+            if (confirm('⚠️ Apakah Anda yakin ingin menghapus SEMUA data? Data yang sudah dihapus tidak dapat dikembalikan!')) {
+                if (confirm('🚨 KONFIRMASI TERAKHIR: Semua data pasien, operan harian, dan jadwal obat akan dihapus permanen!')) {
                     localStorage.removeItem('medicalDashboard_inpatients');
                     localStorage.removeItem('medicalDashboard_handoverData');
                     localStorage.removeItem('medicalDashboard_medications');
@@ -483,7 +483,7 @@
                     updateInpatientList();
                     updateHandoverPatientList();
                     
-                    alert('âœ… Semua data berhasil dihapus!');
+                    alert('✅ Semua data berhasil dihapus!');
                 }
             }
         }
@@ -506,7 +506,7 @@
             link.download = `backup_dashboard_medis_${new Date().toISOString().split('T')[0]}.json`;
             link.click();
             
-            alert('ðŸ“ Data berhasil diekspor! File backup telah diunduh.');
+            alert('📁 Data berhasil diekspor! File backup telah diunduh.');
         }
 
         function importData() {
@@ -523,7 +523,7 @@
                         const importedData = JSON.parse(e.target.result);
                         
                         if (importedData.inpatients && importedData.handoverData) {
-                            if (confirm('ðŸ“¥ Data backup ditemukan! Apakah Anda ingin mengganti data yang ada dengan data backup?')) {
+                            if (confirm('📥 Data backup ditemukan! Apakah Anda ingin mengganti data yang ada dengan data backup?')) {
                                 inpatients = importedData.inpatients || [];
                                 handoverData = importedData.handoverData || {};
                                 medications = importedData.medications || [];
@@ -537,13 +537,13 @@
                                 updateInpatientList();
                                 updateHandoverPatientList();
                                 
-                                alert(`âœ… Data berhasil diimpor!\nðŸ“Š ${inpatients.length} pasien\nðŸ“‹ Data operan harian\nðŸ’Š Status pemberian obat`);
+                                alert(`✅ Data berhasil diimpor!\n📊 ${inpatients.length} pasien\n📋 Data operan harian\n💊 Status pemberian obat`);
                             }
                         } else {
-                            alert('âŒ File backup tidak valid!');
+                            alert('❌ File backup tidak valid!');
                         }
                     } catch (error) {
-                        alert('âŒ Error membaca file backup: ' + error.message);
+                        alert('❌ Error membaca file backup: ' + error.message);
                     }
                 };
                 reader.readAsText(file);
@@ -698,7 +698,7 @@
                     <option value="Sublingual">Sublingual</option>
                 </select>
                 <input type="text" class="col-span-4 px-2 py-1 border border-gray-300 rounded text-sm medication-dose" placeholder="Contoh: 500mg 3x1">
-                <button type="button" onclick="removeMedicationRow(this)" class="col-span-1 bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600">Ã—</button>
+                <button type="button" onclick="removeMedicationRow(this)" class="col-span-1 bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600">×</button>
             `;
             container.appendChild(newRow);
         }
@@ -963,14 +963,14 @@
                 roomHeader.className = 'bg-blue-100 px-3 py-2 text-sm font-semibold text-blue-900 border-b border-blue-200';
                 roomHeader.innerHTML = `
                     <div class="flex items-center">
-                        ðŸ  ${room} (${patientsByRoom[room].length} pasien)
+                        🏠 ${room} (${patientsByRoom[room].length} pasien)
                     </div>
                 `;
                 listContainer.appendChild(roomHeader);
                 
                 // Patients in room
                 patientsByRoom[room].forEach(patient => {
-                    const genderIcon = patient.gender === 'Laki-laki' ? 'ðŸ‘¨' : 'ðŸ‘©';
+                    const genderIcon = patient.gender === 'Laki-laki' ? '👨' : '👩';
                     const genderColor = patient.gender === 'Laki-laki' ? 'bg-blue-500' : 'bg-pink-500';
                     
                     const patientElement = document.createElement('div');
@@ -1034,14 +1034,14 @@
                 roomHeader.className = 'bg-blue-100 px-3 py-2 text-sm font-semibold text-blue-900 border-b border-blue-200';
                 roomHeader.innerHTML = `
                     <div class="flex items-center">
-                        ðŸ  ${room} (${patientsByRoom[room].length} pasien)
+                        🏠 ${room} (${patientsByRoom[room].length} pasien)
                     </div>
                 `;
                 listContainer.appendChild(roomHeader);
                 
                 // Patients in room
                 patientsByRoom[room].forEach(patient => {
-                    const genderIcon = patient.gender === 'Laki-laki' ? 'ðŸ‘¨' : 'ðŸ‘©';
+                    const genderIcon = patient.gender === 'Laki-laki' ? '👨' : '👩';
                     const genderColor = patient.gender === 'Laki-laki' ? 'bg-blue-500' : 'bg-pink-500';
                     
                     const patientElement = document.createElement('div');
@@ -1137,7 +1137,7 @@
                                 ${patient.doctors.map((doctor, index) => `
                                     <div class="flex items-center gap-2 mb-1">
                                         <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${index === 0 ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}">
-                                            ${index === 0 ? 'ðŸ‘¨â€âš•ï¸ DPJP Utama' : 'ðŸ‘¨â€âš•ï¸ DPJP ' + (index + 1)}
+                                            ${index === 0 ? '👨‍⚕️ DPJP Utama' : '👨‍⚕️ DPJP ' + (index + 1)}
                                         </span>
                                         <span>${doctor}</span>
                                     </div>
@@ -1168,7 +1168,7 @@
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-lg font-semibold text-gray-900">Daftar Obat & Jadwal Pemberian</h3>
                         <button onclick="printMedicationSchedule('${patient.id}')" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 text-sm">
-                            ðŸ–¨ï¸ Print Jadwal
+                            🖨️ Print Jadwal
                         </button>
                     </div>
                     <div class="overflow-x-auto">
@@ -1293,7 +1293,7 @@
                                 <option value="Sublingual" ${med.route === 'Sublingual' ? 'selected' : ''}>Sublingual</option>
                             </select>
                             <input type="text" class="col-span-4 px-2 py-1 border border-gray-300 rounded text-sm medication-dose" placeholder="Contoh: 500mg 3x1" value="${med.dose}">
-                            <button type="button" onclick="removeMedicationRow(this)" class="col-span-1 bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600">Ã—</button>
+                            <button type="button" onclick="removeMedicationRow(this)" class="col-span-1 bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600">×</button>
                         </div>
                     `;
                 });
@@ -1316,7 +1316,7 @@
                             <option value="Sublingual">Sublingual</option>
                         </select>
                         <input type="text" class="col-span-4 px-2 py-1 border border-gray-300 rounded text-sm medication-dose" placeholder="Contoh: 500mg 3x1">
-                        <button type="button" onclick="removeMedicationRow(this)" class="col-span-1 bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600">Ã—</button>
+                        <button type="button" onclick="removeMedicationRow(this)" class="col-span-1 bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600">×</button>
                     </div>
                 `;
             }
@@ -1327,10 +1327,10 @@
                     <h2 class="text-xl font-semibold text-gray-900">Edit Data Pasien - ${patient.name}</h2>
                     <div class="space-x-2">
                         <button onclick="saveEditedPatient('${patientId}')" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors">
-                            ðŸ’¾ Simpan
+                            💾 Simpan
                         </button>
                         <button onclick="selectPatient('${patientId}', '${patient.name}')" class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors">
-                            âŒ Batal
+                            ❌ Batal
                         </button>
                     </div>
                 </div>
@@ -1568,7 +1568,7 @@
             updateHandoverPatientList();
             selectPatient(patientId, patient.name);
             
-            alert('âœ… Data pasien berhasil disimpan!');
+            alert('✅ Data pasien berhasil disimpan!');
         }
 
         let currentHandoverDate = new Date().toISOString().split('T')[0];
@@ -1608,14 +1608,14 @@
             const container = document.getElementById('handoverContainer');
             container.innerHTML = `
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-xl font-semibold text-gray-900">ðŸ‘©â€âš•ï¸ Operan Harian - ${patientName}</h2>
+                    <h2 class="text-xl font-semibold text-gray-900">👩‍⚕️ Operan Harian - ${patientName}</h2>
                     <div class="flex items-center gap-4">
                         <div class="flex items-center gap-2">
-                            <button onclick="changeHandoverDate('${patientId}', '${patientName}', -1)" class="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600">â† Kemarin</button>
+                            <button onclick="changeHandoverDate('${patientId}', '${patientName}', -1)" class="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600">← Kemarin</button>
                             <input type="date" id="handoverDatePicker" value="${currentHandoverDate}" onchange="setHandoverDate('${patientId}', '${patientName}', this.value)" class="px-3 py-1 border border-gray-300 rounded text-sm">
-                            <button onclick="changeHandoverDate('${patientId}', '${patientName}', 1)" class="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600">Besok â†’</button>
+                            <button onclick="changeHandoverDate('${patientId}', '${patientName}', 1)" class="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600">Besok →</button>
                         </div>
-                        <button onclick="printHandoverReport('${patientId}')" class="bg-blue-600 text-white px-4 py-1 rounded text-sm hover:bg-blue-700">ðŸ–¨ï¸ Print</button>
+                        <button onclick="printHandoverReport('${patientId}')" class="bg-blue-600 text-white px-4 py-1 rounded text-sm hover:bg-blue-700">🖨️ Print</button>
                     </div>
                 </div>
                 
@@ -1624,8 +1624,8 @@
                     <!-- Shift Pagi -->
                     <div class="bg-gradient-to-r from-blue-50 to-blue-100 border-l-4 border-blue-500 rounded-lg p-4">
                         <div class="flex justify-between items-center mb-3">
-                            <h3 class="text-lg font-semibold text-blue-900">ðŸŒ… Shift Pagi (07:00 - 14:00)</h3>
-                            <button onclick="quickEditHandover('${patientId}', 'shift1')" class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">âœï¸ Edit</button>
+                            <h3 class="text-lg font-semibold text-blue-900">🌅 Shift Pagi (07:00 - 14:00)</h3>
+                            <button onclick="quickEditHandover('${patientId}', 'shift1')" class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">✏️ Edit</button>
                         </div>
                         <div class="grid grid-cols-2 md:grid-cols-6 gap-3 text-sm">
                             <div>
@@ -1664,8 +1664,8 @@
                     <!-- Shift Siang -->
                     <div class="bg-gradient-to-r from-green-50 to-green-100 border-l-4 border-green-500 rounded-lg p-4">
                         <div class="flex justify-between items-center mb-3">
-                            <h3 class="text-lg font-semibold text-green-900">â˜€ï¸ Shift Siang (14:00 - 21:00)</h3>
-                            <button onclick="quickEditHandover('${patientId}', 'shift2')" class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700">âœï¸ Edit</button>
+                            <h3 class="text-lg font-semibold text-green-900">☀️ Shift Siang (14:00 - 21:00)</h3>
+                            <button onclick="quickEditHandover('${patientId}', 'shift2')" class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700">✏️ Edit</button>
                         </div>
                         <div class="grid grid-cols-2 md:grid-cols-6 gap-3 text-sm">
                             <div>
@@ -1704,8 +1704,8 @@
                     <!-- Shift Malam -->
                     <div class="bg-gradient-to-r from-purple-50 to-purple-100 border-l-4 border-purple-500 rounded-lg p-4">
                         <div class="flex justify-between items-center mb-3">
-                            <h3 class="text-lg font-semibold text-purple-900">ðŸŒ™ Shift Malam (21:00 - 07:00)</h3>
-                            <button onclick="quickEditHandover('${patientId}', 'shift3')" class="bg-purple-600 text-white px-3 py-1 rounded text-sm hover:bg-purple-700">âœï¸ Edit</button>
+                            <h3 class="text-lg font-semibold text-purple-900">🌙 Shift Malam (21:00 - 07:00)</h3>
+                            <button onclick="quickEditHandover('${patientId}', 'shift3')" class="bg-purple-600 text-white px-3 py-1 rounded text-sm hover:bg-purple-700">✏️ Edit</button>
                         </div>
                         <div class="grid grid-cols-2 md:grid-cols-6 gap-3 text-sm">
                             <div>
@@ -1760,9 +1760,9 @@
             const patient = inpatients.find(p => p.id === patientId);
             
             const shiftNames = {
-                'shift1': 'ðŸŒ… Shift Pagi (07:00-14:00)',
-                'shift2': 'â˜€ï¸ Shift Siang (14:00-21:00)', 
-                'shift3': 'ðŸŒ™ Shift Malam (21:00-07:00)'
+                'shift1': '🌅 Shift Pagi (07:00-14:00)',
+                'shift2': '☀️ Shift Siang (14:00-21:00)', 
+                'shift3': '🌙 Shift Malam (21:00-07:00)'
             };
             
             const colors = {
@@ -1776,13 +1776,13 @@
             const container = document.getElementById('handoverContainer');
             container.innerHTML = `
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-xl font-semibold text-gray-900">âœï¸ Edit ${shiftNames[shift]} - ${patient.name}</h2>
+                    <h2 class="text-xl font-semibold text-gray-900">✏️ Edit ${shiftNames[shift]} - ${patient.name}</h2>
                     <div class="space-x-2">
                         <button onclick="saveQuickHandover('${patientId}', '${shift}')" class="bg-${color}-600 text-white px-4 py-2 rounded-md hover:bg-${color}-700 transition-colors">
-                            ðŸ’¾ Simpan
+                            💾 Simpan
                         </button>
                         <button onclick="selectHandoverPatient('${patientId}', '${patient.name}')" class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors">
-                            âŒ Batal
+                            ❌ Batal
                         </button>
                     </div>
                 </div>
@@ -1815,7 +1815,7 @@
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-${color}-800 mb-2">Suhu</label>
-                                <input type="text" id="quickSuhu" value="${handover.suhu || ''}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-${color}-500" placeholder="36.5Â°C">
+                                <input type="text" id="quickSuhu" value="${handover.suhu || ''}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-${color}-500" placeholder="36.5°C">
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-${color}-800 mb-2">SpO2</label>
@@ -1865,7 +1865,7 @@
             
             selectHandoverPatient(patientId, patient.name);
             
-            alert('âœ… Data operan berhasil disimpan!');
+            alert('✅ Data operan berhasil disimpan!');
         }
 
         function editHandover(patientId, shift) {
@@ -1926,7 +1926,7 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Suhu</label>
-                            <input type="text" id="editSuhu" value="${handover.suhu || ''}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="36.5Â°C">
+                            <input type="text" id="editSuhu" value="${handover.suhu || ''}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="36.5°C">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">SpO2</label>
@@ -2337,7 +2337,7 @@
                     </div>
                     
                     <div class="shift-section">
-                        <div class="shift-header shift-pagi">ðŸŒ… SHIFT PAGI (07:00 - 14:00)</div>
+                        <div class="shift-header shift-pagi">🌅 SHIFT PAGI (07:00 - 14:00)</div>
                         <div><strong>Perawat Jaga:</strong> ${handover.shift1.nurse || '-'}</div>
                         <div class="vital-signs">
                             <div class="vital-item">
@@ -2362,7 +2362,7 @@
                     </div>
                     
                     <div class="shift-section">
-                        <div class="shift-header shift-siang">â˜€ï¸ SHIFT SIANG (14:00 - 21:00)</div>
+                        <div class="shift-header shift-siang">☀️ SHIFT SIANG (14:00 - 21:00)</div>
                         <div><strong>Perawat Jaga:</strong> ${handover.shift2.nurse || '-'}</div>
                         <div class="vital-signs">
                             <div class="vital-item">
@@ -2387,7 +2387,7 @@
                     </div>
                     
                     <div class="shift-section">
-                        <div class="shift-header shift-malam">ðŸŒ™ SHIFT MALAM (21:00 - 07:00)</div>
+                        <div class="shift-header shift-malam">🌙 SHIFT MALAM (21:00 - 07:00)</div>
                         <div><strong>Perawat Jaga:</strong> ${handover.shift3.nurse || '-'}</div>
                         <div class="vital-signs">
                             <div class="vital-item">
@@ -2541,7 +2541,7 @@
                         <div>
                             <p><strong>Keterangan:</strong></p>
                             <ul style="margin: 0; padding-left: 1rem;">
-                                <li>Beri tanda âœ“ pada kotak setelah obat diberikan</li>
+                                <li>Beri tanda ✓ pada kotak setelah obat diberikan</li>
                                 <li>Catat reaksi alergi atau efek samping</li>
                                 <li>Laporkan segera jika ada reaksi yang tidak diinginkan</li>
                             </ul>
@@ -2584,14 +2584,14 @@
             document.getElementById('modalDoctorName').textContent = `Pasien ${shortName}`;
             
             const patientList = patients.map(patient => {
-                const genderIcon = patient.gender === 'Laki-laki' ? 'ðŸ‘¨' : 'ðŸ‘©';
+                const genderIcon = patient.gender === 'Laki-laki' ? '👨' : '👩';
                 return `
                     <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-blue-50 cursor-pointer transition-colors" onclick="selectPatientFromModal('${patient.id}', '${patient.name}')">
                         <div class="flex items-center">
                             <div class="text-lg mr-3">${genderIcon}</div>
                             <div>
                                 <div class="font-medium text-gray-900">${patient.name}</div>
-                                <div class="text-sm text-gray-500">RM: ${patient.id} â€¢ ${patient.room}</div>
+                                <div class="text-sm text-gray-500">RM: ${patient.id} • ${patient.room}</div>
                             </div>
                         </div>
                         <div class="text-xs text-gray-500">${patient.age}</div>
