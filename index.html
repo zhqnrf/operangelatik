@@ -1,0 +1,2625 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Rekam Medis Rawat Inap</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .tab-active {
+            background-color: #2563eb;
+            color: white;
+        }
+        .tab-inactive {
+            background-color: #f3f4f6;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center">
+                    <div class="bg-blue-600 text-white p-2 rounded-lg mr-3">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                        </svg>
+                    </div>
+                    <h1 class="text-2xl font-bold text-gray-900">Dashboard Rawat Inap</h1>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button onclick="exportData()" class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700" title="Backup Data">
+                        ðŸ“ Backup
+                    </button>
+                    <button onclick="importData()" class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700" title="Restore Data">
+                        ðŸ“¥ Restore
+                    </button>
+                    <button onclick="clearAllData()" class="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700" title="Hapus Semua Data">
+                        ðŸ—‘ï¸ Reset
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div class="flex space-x-1 bg-gray-100 p-1 rounded-lg">
+            <button onclick="showTab('dashboard')" id="tab-dashboard" class="flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors tab-active">
+                ðŸ“Š Dashboard
+            </button>
+            <button onclick="showTab('input-pasien')" id="tab-input-pasien" class="flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors tab-inactive">
+                ðŸ“ Input Pasien Baru
+            </button>
+            <button onclick="showTab('rawat-inap')" id="tab-rawat-inap" class="flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors tab-inactive">
+                ðŸ¥ Pasien Rawat Inap
+            </button>
+            <button onclick="showTab('operan-harian')" id="tab-operan-harian" class="flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors tab-inactive">
+                ðŸ‘©â€âš•ï¸ Operan Harian Perawat
+            </button>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+        <!-- Tab 0: Dashboard -->
+        <div id="content-dashboard" class="tab-content">
+            <!-- Quick Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg p-4">
+                    <div class="text-2xl font-bold" id="occupiedBeds">0</div>
+                    <div class="text-sm opacity-90">Pasien Rawat Inap</div>
+                </div>
+                <div class="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg p-4">
+                    <div class="text-2xl font-bold" id="availableBeds">32</div>
+                    <div class="text-sm opacity-90">Tempat Tidur Tersedia</div>
+                </div>
+                <div class="bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg p-4">
+                    <div class="text-2xl font-bold" id="tbPatients">0</div>
+                    <div class="text-sm opacity-90">Pasien TB</div>
+                </div>
+                <div class="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg p-4">
+                    <div class="text-2xl font-bold" id="activeDoctors">0</div>
+                    <div class="text-sm opacity-90">Dokter Aktif</div>
+                </div>
+            </div>
+            
+            <!-- Motivational Quote -->
+            <div class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg p-6 mb-6">
+                <div class="flex items-center">
+                    <div class="text-4xl mr-4">ðŸ’ª</div>
+                    <div>
+                        <p id="motivationalQuote" class="text-lg font-medium mb-2"></p>
+                        <p class="text-sm opacity-90">- Semangat untuk hari ini -</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Patient Overview -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">ðŸ“Š Ringkasan Pasien</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center p-3 bg-orange-50 rounded">
+                            <span class="text-sm font-medium">Pasien TB</span>
+                            <span class="text-lg font-bold text-orange-600" id="tbPatientsCount">0</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-yellow-50 rounded">
+                            <span class="text-sm font-medium">Suspect TB</span>
+                            <span class="text-lg font-bold text-yellow-600" id="suspectTbPatients">0</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-blue-50 rounded">
+                            <span class="text-sm font-medium">Non-TB</span>
+                            <span class="text-lg font-bold text-blue-600" id="nonTbPatients">0</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">ðŸ‘¨â€âš•ï¸ Dokter Bertugas</h3>
+                    <div id="doctorDetails" class="space-y-2 max-h-64 overflow-y-auto">
+                        <p class="text-gray-500 text-center py-8">Belum ada pasien terdaftar</p>
+                    </div>
+                </div>
+                
+                <!-- Doctor Patients Modal -->
+                <div id="doctorPatientsModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+                    <div class="flex items-center justify-center min-h-screen p-4">
+                        <div class="bg-white rounded-lg max-w-2xl w-full max-h-96 overflow-y-auto">
+                            <div class="p-6">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h3 id="modalDoctorName" class="text-lg font-semibold text-gray-900"></h3>
+                                    <button onclick="closeDoctorModal()" class="text-gray-400 hover:text-gray-600">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div id="modalPatientList" class="space-y-2">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 1: Input Pasien Baru -->
+        <div id="content-input-pasien" class="tab-content">
+            <div class="bg-white rounded-lg shadow">
+                <!-- Header -->
+                <div class="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 rounded-t-lg">
+                    <h2 class="text-2xl font-bold">ðŸ“ Registrasi Pasien Rawat Inap Baru</h2>
+                    <p class="text-blue-100 mt-1">Lengkapi data pasien dengan cepat dan akurat</p>
+                </div>
+                
+                <form onsubmit="addNewInpatient(event)" class="p-6">
+                    <!-- Step 1: Data Identitas -->
+                    <div class="mb-8">
+                        <div class="flex items-center mb-4">
+                            <div class="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">1</div>
+                            <h3 class="text-lg font-semibold text-gray-900">Data Identitas Pasien</h3>
+                        </div>
+                        <div class="bg-blue-50 rounded-lg p-4">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap *</label>
+                                    <input type="text" id="newPatientName" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" required>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">No. Rekam Medis *</label>
+                                    <input type="text" id="newPatientRM" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" placeholder="RM001234" required>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Jenis Kelamin *</label>
+                                    <select id="newPatientGender" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" required>
+                                        <option value="">Pilih</option>
+                                        <option value="Laki-laki">ðŸ‘¨ Laki-laki</option>
+                                        <option value="Perempuan">ðŸ‘© Perempuan</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Lahir *</label>
+                                    <input type="date" id="newPatientBirth" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" onchange="calculateAge()" required>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Umur</label>
+                                    <input type="text" id="newPatientAge" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-sm" readonly placeholder="Otomatis">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Penjamin *</label>
+                                    <select id="newPatientInsurance" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" required>
+                                        <option value="">Pilih penjamin</option>
+                                        <option value="BPJS Kelas 1">ðŸ¥ BPJS Kelas 1</option>
+                                        <option value="BPJS Kelas 2">ðŸ¥ BPJS Kelas 2</option>
+                                        <option value="BPJS Kelas 3">ðŸ¥ BPJS Kelas 3</option>
+                                        <option value="BPJS PBI">ðŸ¥ BPJS PBI</option>
+                                        <option value="BPJS PBID">ðŸ¥ BPJS PBID</option>
+                                        <option value="Lainnya">ðŸ’³ Lainnya</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Ruang Rawat *</label>
+                                    <select id="newPatientRoom" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" required>
+                                        <option value="">Pilih ruang</option>
+                                        <optgroup label="ðŸ  Lantai 1">
+                                            <option value="Gelatik 1A">Gelatik 1A</option>
+                                            <option value="Gelatik 1B">Gelatik 1B</option>
+                                            <option value="Gelatik 1C">Gelatik 1C</option>
+                                            <option value="Gelatik 1D">Gelatik 1D</option>
+                                        </optgroup>
+                                        <optgroup label="ðŸ  Lantai 2">
+                                            <option value="Gelatik 2A">Gelatik 2A</option>
+                                            <option value="Gelatik 2B">Gelatik 2B</option>
+                                            <option value="Gelatik 2C">Gelatik 2C</option>
+                                            <option value="Gelatik 2D">Gelatik 2D</option>
+                                        </optgroup>
+                                        <optgroup label="ðŸ  Lantai 3">
+                                            <option value="Gelatik 3A">Gelatik 3A</option>
+                                            <option value="Gelatik 3B">Gelatik 3B</option>
+                                            <option value="Gelatik 3C">Gelatik 3C</option>
+                                            <option value="Gelatik 3D">Gelatik 3D</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Alamat *</label>
+                                    <textarea id="newPatientAddress" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" placeholder="Alamat lengkap pasien" required></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Data Medis -->
+                    <div class="mb-8">
+                        <div class="flex items-center mb-4">
+                            <div class="bg-green-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">2</div>
+                            <h3 class="text-lg font-semibold text-gray-900">Informasi Medis</h3>
+                        </div>
+                        <div class="bg-green-50 rounded-lg p-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Diagnosa *</label>
+                                    <textarea id="newPatientDiagnosis" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-sm" placeholder="Diagnosa utama" required></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Pemeriksaan Penunjang</label>
+                                    <textarea id="newPatientExamination" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-sm" placeholder="Lab, Radiologi, dll"></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">RPD (Riwayat Penyakit Dahulu)</label>
+                                    <textarea id="newPatientRPD" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-sm" placeholder="Riwayat penyakit sebelumnya"></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">RPO (Riwayat Penggunaan Obat)</label>
+                                    <textarea id="newPatientRPO" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-sm" placeholder="Obat yang sedang/pernah dikonsumsi"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Dokter -->
+                    <div class="mb-8">
+                        <div class="flex items-center mb-4">
+                            <div class="bg-purple-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">3</div>
+                            <h3 class="text-lg font-semibold text-gray-900">Dokter Penanggung Jawab</h3>
+                        </div>
+                        <div class="bg-purple-50 rounded-lg p-4">
+                            <div id="doctorContainer" class="space-y-2">
+                                <div class="flex gap-2">
+                                    <select class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm doctor-select" required>
+                                        <option value="">ðŸ‘¨â€âš•ï¸ Pilih dokter utama</option>
+                                    </select>
+                                    <button type="button" onclick="addDoctorField()" class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 text-sm font-medium">+ Dokter</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Obat -->
+                    <div class="mb-8">
+                        <div class="flex items-center mb-4">
+                            <div class="bg-orange-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">4</div>
+                            <h3 class="text-lg font-semibold text-gray-900">Daftar Obat</h3>
+                        </div>
+                        <div class="bg-orange-50 rounded-lg p-4">
+                            <div class="flex justify-between items-center mb-3">
+                                <span class="text-sm font-medium text-gray-700">ðŸ’Š Obat-obatan</span>
+                                <button type="button" onclick="addMedicationRow()" class="bg-orange-600 text-white px-4 py-2 rounded-md text-sm hover:bg-orange-700 font-medium">+ Tambah Obat</button>
+                            </div>
+                            <div id="medicationContainer" class="space-y-2">
+                                <div class="grid grid-cols-12 gap-2 text-xs font-medium text-gray-700 pb-2 border-b border-orange-200">
+                                    <div class="col-span-5">Nama Obat</div>
+                                    <div class="col-span-2">Rute</div>
+                                    <div class="col-span-4">Dosis & Frekuensi</div>
+                                    <div class="col-span-1">Aksi</div>
+                                </div>
+                                <div class="medication-row grid grid-cols-12 gap-2">
+                                    <div class="col-span-5 relative">
+                                        <input type="text" class="w-full px-2 py-2 border border-gray-300 rounded text-sm medication-name" placeholder="Ketik nama obat..." oninput="showMedicationSuggestions(this)">
+                                        <div class="medication-suggestions absolute z-10 w-full bg-white border border-gray-300 rounded-b max-h-40 overflow-y-auto hidden"></div>
+                                    </div>
+                                    <select class="col-span-2 px-2 py-2 border border-gray-300 rounded text-sm medication-route">
+                                        <option value="">Pilih</option>
+                                        <option value="PO">ðŸ’Š PO</option>
+                                        <option value="IV">ðŸ’‰ IV</option>
+                                        <option value="IM">ðŸ’‰ IM</option>
+                                        <option value="SC">ðŸ’‰ SC</option>
+                                        <option value="Topikal">ðŸ§´ Topikal</option>
+                                        <option value="Inhalasi">ðŸŒ¬ï¸ Inhalasi</option>
+                                        <option value="Rektal">ðŸ”¸ Rektal</option>
+                                        <option value="Sublingual">ðŸ‘… Sublingual</option>
+                                    </select>
+                                    <input type="text" class="col-span-4 px-2 py-2 border border-gray-300 rounded text-sm medication-dose" placeholder="500mg 3x1">
+                                    <button type="button" onclick="removeMedicationRow(this)" class="col-span-1 bg-red-500 text-white px-2 py-2 rounded text-xs hover:bg-red-600">Ã—</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="flex justify-center pt-6 border-t border-gray-200">
+                        <button type="submit" class="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-3 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-semibold text-lg shadow-lg">
+                            âœ… Daftarkan Pasien
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Tab 2: Pasien Rawat Inap -->
+        <div id="content-rawat-inap" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                <!-- Patient List -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-lg shadow max-h-screen overflow-y-auto">
+                        <div class="px-4 py-3 border-b border-gray-200 sticky top-0 bg-white">
+                            <h3 class="text-lg font-semibold text-gray-900">Daftar Pasien</h3>
+                            <div class="flex gap-2 mt-2">
+                                <button onclick="filterPatients('all')" id="filter-all" class="px-2 py-1 text-xs bg-blue-600 text-white rounded">Semua</button>
+                                <button onclick="filterPatients('male')" id="filter-male" class="px-2 py-1 text-xs bg-gray-200 text-gray-700 rounded">ðŸ‘¨ L</button>
+                                <button onclick="filterPatients('female')" id="filter-female" class="px-2 py-1 text-xs bg-gray-200 text-gray-700 rounded">ðŸ‘© P</button>
+                            </div>
+                        </div>
+                        <div id="inpatientList">
+                            <!-- Patient list will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Patient Details -->
+                <div class="lg:col-span-3">
+                    <div id="patientDetailsContainer" class="bg-white rounded-lg shadow p-6">
+                        <div class="text-center text-gray-500 py-8">
+                            <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
+                            <p>Pilih pasien untuk melihat detail</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 3: Operan Harian Perawat -->
+        <div id="content-operan-harian" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                <!-- Patient List for Handover -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-lg shadow max-h-screen overflow-y-auto">
+                        <div class="px-4 py-3 border-b border-gray-200 sticky top-0 bg-white">
+                            <h3 class="text-lg font-semibold text-gray-900">Pilih Pasien</h3>
+                            <div class="flex gap-2 mt-2">
+                                <button onclick="filterHandoverPatients('all')" id="handover-filter-all" class="px-2 py-1 text-xs bg-blue-600 text-white rounded">Semua</button>
+                                <button onclick="filterHandoverPatients('male')" id="handover-filter-male" class="px-2 py-1 text-xs bg-gray-200 text-gray-700 rounded">ðŸ‘¨ L</button>
+                                <button onclick="filterHandoverPatients('female')" id="handover-filter-female" class="px-2 py-1 text-xs bg-gray-200 text-gray-700 rounded">ðŸ‘© P</button>
+                            </div>
+                        </div>
+                        <div id="handoverPatientList">
+                            <!-- Patient list will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Handover Details -->
+                <div class="lg:col-span-3">
+                    <div id="handoverContainer" class="bg-white rounded-lg shadow p-6">
+                        <div class="text-center text-gray-500 py-8">
+                            <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            <p>Pilih pasien untuk melihat operan harian</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+    <script>
+        const dpjpList = [
+            "dr. CAESAR ENSANG TIMUDA, Sp.P", "dr. AGUNG SANDI RAMADAN, Sp.PD", "dr. FEBRIAN DARU SETIAWAN, Sp.PD",
+            "dr. HARNOWO WILUJENG, Sp.PD-FINASIM", "dr. MOHAMMAD AFIES SJUGHIARTO, Sp.Jp, MMRS",
+            "dr. LAURENTIA DIVINA RESPATI, Sp.S", "dr. ANITA SURYA SANTOSO, Sp.JP", "dr. RIDZA ASRUL PRAMUDYA, Sp.N",
+            "dr. NORMAN HADI, Sp.B.", "dr. ANGGAYASTI, Sp.A., M.Kes", "dr. CHRISTOPHER ANTONY SIMANDJUNTAK, Sp.OT",
+            "dr. RIZQI WAHYU HARIYONO, Sp.M", "dr. ARI SARDITO, Sp.B", "dr. FARAH AYU NISWANA, Sp.THT-KL",
+            "dr. RAHMAD KRISMANTORO, Sp.U", "dr. BAYU PRABOWO, Sp. A.", "dr. EKO WAHYUDI, Sp. A",
+            "dr. EMY KUSUMANINGSIH, Sp. DV", "dr. FERRIE BUDIANTO, Sp. An", "dr. WINDY ARI WIJAYA, Sp.An",
+            "dr. HEDINA SUWONDO, Sp.KJ","dr. DHAMAYANTI EKA OCTAVIA, Sp.OG", "dr. DADANG WIBOWO, Sp. OG", 
+            "dr. BRAMANTYO AJI WICAKSONO, Sp.OG., M.Biomed","dr. TONY WIDYANTO, Sp.OG (K)"
+        ];
+
+        let inpatients = [];
+        let medications = [];
+
+        let handoverData = {};
+        let currentFilter = 'all';
+        let currentHandoverFilter = 'all';
+
+        // LocalStorage Functions
+        function saveToLocalStorage() {
+            try {
+                localStorage.setItem('medicalDashboard_inpatients', JSON.stringify(inpatients));
+                localStorage.setItem('medicalDashboard_handoverData', JSON.stringify(handoverData));
+                localStorage.setItem('medicalDashboard_medications', JSON.stringify(medications));
+            } catch (error) {
+                console.error('Error saving to localStorage:', error);
+            }
+        }
+
+        function loadFromLocalStorage() {
+            try {
+                const savedInpatients = localStorage.getItem('medicalDashboard_inpatients');
+                const savedHandoverData = localStorage.getItem('medicalDashboard_handoverData');
+                const savedMedications = localStorage.getItem('medicalDashboard_medications');
+                
+                if (savedInpatients) {
+                    inpatients = JSON.parse(savedInpatients);
+                }
+                if (savedHandoverData) {
+                    handoverData = JSON.parse(savedHandoverData);
+                }
+                if (savedMedications) {
+                    medications = JSON.parse(savedMedications);
+                }
+                
+                // Update displays after loading
+                updateDashboard();
+                updateInpatientList();
+                updateHandoverPatientList();
+            } catch (error) {
+                console.error('Error loading from localStorage:', error);
+            }
+        }
+
+        function clearAllData() {
+            if (confirm('âš ï¸ Apakah Anda yakin ingin menghapus SEMUA data? Data yang sudah dihapus tidak dapat dikembalikan!')) {
+                if (confirm('ðŸš¨ KONFIRMASI TERAKHIR: Semua data pasien, operan harian, dan jadwal obat akan dihapus permanen!')) {
+                    localStorage.removeItem('medicalDashboard_inpatients');
+                    localStorage.removeItem('medicalDashboard_handoverData');
+                    localStorage.removeItem('medicalDashboard_medications');
+                    localStorage.removeItem('medicationStatus');
+                    
+                    inpatients = [];
+                    handoverData = {};
+                    medications = [];
+                    
+                    updateDashboard();
+                    updateInpatientList();
+                    updateHandoverPatientList();
+                    
+                    alert('âœ… Semua data berhasil dihapus!');
+                }
+            }
+        }
+
+        function exportData() {
+            const exportData = {
+                inpatients: inpatients,
+                handoverData: handoverData,
+                medications: medications,
+                medicationStatus: JSON.parse(localStorage.getItem('medicationStatus') || '{}'),
+                exportDate: new Date().toISOString(),
+                version: '1.0'
+            };
+            
+            const dataStr = JSON.stringify(exportData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `backup_dashboard_medis_${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            
+            alert('ðŸ“ Data berhasil diekspor! File backup telah diunduh.');
+        }
+
+        function importData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = function(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const importedData = JSON.parse(e.target.result);
+                        
+                        if (importedData.inpatients && importedData.handoverData) {
+                            if (confirm('ðŸ“¥ Data backup ditemukan! Apakah Anda ingin mengganti data yang ada dengan data backup?')) {
+                                inpatients = importedData.inpatients || [];
+                                handoverData = importedData.handoverData || {};
+                                medications = importedData.medications || [];
+                                
+                                if (importedData.medicationStatus) {
+                                    localStorage.setItem('medicationStatus', JSON.stringify(importedData.medicationStatus));
+                                }
+                                
+                                saveToLocalStorage();
+                                updateDashboard();
+                                updateInpatientList();
+                                updateHandoverPatientList();
+                                
+                                alert(`âœ… Data berhasil diimpor!\nðŸ“Š ${inpatients.length} pasien\nðŸ“‹ Data operan harian\nðŸ’Š Status pemberian obat`);
+                            }
+                        } else {
+                            alert('âŒ File backup tidak valid!');
+                        }
+                    } catch (error) {
+                        alert('âŒ Error membaca file backup: ' + error.message);
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+        // Comprehensive medication database
+        const medicationDatabase = [
+            // Antibiotics
+            'Amoxicillin', 'Ampicillin', 'Azithromycin', 'Cefixime', 'Ceftriaxone', 'Ciprofloxacin', 'Clindamycin', 'Doxycycline', 'Erythromycin', 'Gentamicin', 'Levofloxacin', 'Metronidazole', 'Penicillin', 'Rifampicin', 'Streptomycin', 'Tetracycline',
+            
+            // Analgesics & Anti-inflammatory
+            'Paracetamol', 'Ibuprofen', 'Aspirin', 'Diclofenac', 'Ketorolac', 'Meloxicam', 'Naproxen', 'Tramadol', 'Morphine', 'Codeine', 'Fentanyl', 'Pethidine',
+            
+            // Cardiovascular
+            'Amlodipine', 'Atenolol', 'Bisoprolol', 'Captopril', 'Carvedilol', 'Digoxin', 'Enalapril', 'Furosemide', 'Hydrochlorothiazide', 'Lisinopril', 'Losartan', 'Metoprolol', 'Nifedipine', 'Propranolol', 'Ramipril', 'Simvastatin', 'Valsartan', 'Warfarin',
+            
+            // Respiratory
+            'Salbutamol', 'Terbutaline', 'Theophylline', 'Prednisolone', 'Dexamethasone', 'Budesonide', 'Fluticasone', 'Ipratropium', 'Tiotropium', 'Montelukast', 'Cetirizine', 'Loratadine', 'Chlorpheniramine',
+            
+            // Gastrointestinal
+            'Omeprazole', 'Lansoprazole', 'Ranitidine', 'Famotidine', 'Sucralfate', 'Domperidone', 'Metoclopramide', 'Ondansetron', 'Loperamide', 'Lactulose', 'Bisacodyl',
+            
+            // Diabetes
+            'Metformin', 'Glibenclamide', 'Gliclazide', 'Insulin Rapid', 'Insulin Long Acting', 'Insulin NPH', 'Acarbose', 'Pioglitazone',
+            
+            // Neurological
+            'Phenytoin', 'Carbamazepine', 'Valproic Acid', 'Levetiracetam', 'Gabapentin', 'Pregabalin', 'Amitriptyline', 'Fluoxetine', 'Sertraline', 'Haloperidol', 'Risperidone', 'Olanzapine',
+            
+            // Infusions
+            'NaCl 0.9%', 'Dextrose 5%', 'Dextrose 10%', 'Ringer Lactate', 'Ringer Acetate', 'Albumin 20%', 'Mannitol 20%', 'KCl in Dextrose', 'Aminofluid', 'Lipofundin',
+            
+            // Inhalations
+            'Ventolin Nebulizer', 'Pulmicort Respules', 'Combivent Nebulizer', 'Berodual Nebulizer', 'Atrovent Nebulizer', 'Normal Saline Nebulizer',
+            
+            // Others
+            'Vitamin B Complex', 'Vitamin C', 'Vitamin D3', 'Folic Acid', 'Iron Sulfate', 'Calcium Carbonate', 'Magnesium Sulfate', 'Potassium Chloride'
+        ];
+
+        function showMedicationSuggestions(input) {
+            const value = input.value.toLowerCase();
+            const suggestionsDiv = input.nextElementSibling;
+            
+            if (value.length < 2) {
+                suggestionsDiv.classList.add('hidden');
+                return;
+            }
+            
+            const matches = medicationDatabase.filter(med => 
+                med.toLowerCase().includes(value)
+            ).slice(0, 8);
+            
+            if (matches.length === 0) {
+                suggestionsDiv.classList.add('hidden');
+                return;
+            }
+            
+            suggestionsDiv.innerHTML = matches.map(med => 
+                `<div class="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm" onclick="selectMedication(this, '${med}')">${med}</div>`
+            ).join('');
+            
+            suggestionsDiv.classList.remove('hidden');
+        }
+
+        function selectMedication(element, medication) {
+            const input = element.parentElement.previousElementSibling;
+            input.value = medication;
+            element.parentElement.classList.add('hidden');
+            
+            // Auto-suggest route based on medication type
+            const routeSelect = input.closest('.medication-row').querySelector('.medication-route');
+            if (medication.includes('Nebulizer') || medication.includes('Inhalation')) {
+                routeSelect.value = 'Inhalasi';
+            } else if (medication.includes('NaCl') || medication.includes('Dextrose') || medication.includes('Ringer') || medication.includes('Albumin') || medication.includes('Mannitol') || medication.includes('Aminofluid') || medication.includes('Lipofundin')) {
+                routeSelect.value = 'IV';
+            } else {
+                routeSelect.value = 'PO';
+            }
+        }
+
+        // Hide suggestions when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.classList.contains('medication-name')) {
+                document.querySelectorAll('.medication-suggestions').forEach(div => {
+                    div.classList.add('hidden');
+                });
+            }
+        });
+
+        function calculateAge() {
+            const birthDate = document.getElementById('newPatientBirth').value;
+            if (birthDate) {
+                const today = new Date();
+                const birth = new Date(birthDate);
+                let age = today.getFullYear() - birth.getFullYear();
+                const monthDiff = today.getMonth() - birth.getMonth();
+                
+                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+                    age--;
+                }
+                
+                document.getElementById('newPatientAge').value = age + ' tahun';
+            }
+        }
+
+        function populateDoctorOptions() {
+            const selects = document.querySelectorAll('.doctor-select');
+            selects.forEach(select => {
+                select.innerHTML = '<option value="">Pilih dokter</option>';
+                dpjpList.forEach(doctor => {
+                    const option = document.createElement('option');
+                    option.value = doctor;
+                    option.textContent = doctor;
+                    select.appendChild(option);
+                });
+            });
+        }
+
+        function addDoctorField() {
+            const container = document.getElementById('doctorContainer');
+            const newField = document.createElement('div');
+            newField.className = 'flex gap-2';
+            newField.innerHTML = `
+                <select class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 doctor-select">
+                    <option value="">Pilih dokter</option>
+                </select>
+                <button type="button" onclick="removeDoctorField(this)" class="px-3 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">-</button>
+            `;
+            container.appendChild(newField);
+            populateDoctorOptions();
+        }
+
+        function addMedicationRow() {
+            const container = document.getElementById('medicationContainer');
+            const newRow = document.createElement('div');
+            newRow.className = 'medication-row grid grid-cols-12 gap-2';
+            newRow.innerHTML = `
+                <div class="col-span-5 relative">
+                    <input type="text" class="w-full px-2 py-1 border border-gray-300 rounded text-sm medication-name" placeholder="Nama obat" oninput="showMedicationSuggestions(this)">
+                    <div class="medication-suggestions absolute z-10 w-full bg-white border border-gray-300 rounded-b max-h-40 overflow-y-auto hidden"></div>
+                </div>
+                <select class="col-span-2 px-2 py-1 border border-gray-300 rounded text-sm medication-route">
+                    <option value="">Pilih</option>
+                    <option value="PO">PO (Oral)</option>
+                    <option value="IV">IV (Intravena)</option>
+                    <option value="IM">IM (Intramuskular)</option>
+                    <option value="SC">SC (Subkutan)</option>
+                    <option value="Topikal">Topikal</option>
+                    <option value="Inhalasi">Inhalasi</option>
+                    <option value="Rektal">Rektal</option>
+                    <option value="Sublingual">Sublingual</option>
+                </select>
+                <input type="text" class="col-span-4 px-2 py-1 border border-gray-300 rounded text-sm medication-dose" placeholder="Contoh: 500mg 3x1">
+                <button type="button" onclick="removeMedicationRow(this)" class="col-span-1 bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600">Ã—</button>
+            `;
+            container.appendChild(newRow);
+        }
+
+        function removeMedicationRow(button) {
+            const container = document.getElementById('medicationContainer');
+            const rows = container.querySelectorAll('.medication-row');
+            if (rows.length > 1) {
+                button.parentElement.remove();
+            }
+        }
+
+        function removeDoctorField(button) {
+            button.parentElement.remove();
+        }
+
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            
+            // Show selected tab content
+            document.getElementById(`content-${tabName}`).classList.remove('hidden');
+            
+            // Update tab buttons
+            document.querySelectorAll('[id^="tab-"]').forEach(tab => {
+                tab.className = tab.className.replace('tab-active', 'tab-inactive');
+            });
+            document.getElementById(`tab-${tabName}`).className = document.getElementById(`tab-${tabName}`).className.replace('tab-inactive', 'tab-active');
+        }
+
+        function addNewInpatient(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('newPatientName').value;
+            const rmNumber = document.getElementById('newPatientRM').value;
+            const birth = document.getElementById('newPatientBirth').value;
+            const age = document.getElementById('newPatientAge').value;
+            const gender = document.getElementById('newPatientGender').value;
+            const address = document.getElementById('newPatientAddress').value;
+            const room = document.getElementById('newPatientRoom').value;
+            const insurance = document.getElementById('newPatientInsurance').value;
+            const diagnosis = document.getElementById('newPatientDiagnosis').value;
+            const examination = document.getElementById('newPatientExamination').value;
+            const rpd = document.getElementById('newPatientRPD').value;
+            const rpo = document.getElementById('newPatientRPO').value;
+            
+            // Get selected doctors
+            const doctorSelects = document.querySelectorAll('.doctor-select');
+            const doctors = [];
+            doctorSelects.forEach(select => {
+                if (select.value) {
+                    doctors.push(select.value);
+                }
+            });
+            
+            if (doctors.length === 0) {
+                alert('Pilih minimal satu dokter penanggung jawab!');
+                return;
+            }
+            
+            // Get medications
+            const medicationRows = document.querySelectorAll('.medication-row');
+            const medicationList = [];
+            medicationRows.forEach(row => {
+                const name = row.querySelector('.medication-name').value;
+                const route = row.querySelector('.medication-route').value;
+                const dose = row.querySelector('.medication-dose').value;
+                if (name && route && dose) {
+                    medicationList.push({ name, route, dose });
+                }
+            });
+            
+            // Check if RM number already exists
+            const existingPatient = inpatients.find(p => p.id === rmNumber);
+            if (existingPatient) {
+                alert('Nomor rekam medis sudah ada! Silakan gunakan nomor yang berbeda.');
+                return;
+            }
+            
+            const newPatient = {
+                id: rmNumber,
+                name: name,
+                birth: birth,
+                age: age,
+                gender: gender,
+                address: address,
+                room: room,
+                insurance: insurance,
+                doctors: doctors,
+                diagnosis: diagnosis,
+                examination: examination || 'Belum ada pemeriksaan',
+                rpd: rpd || 'Tidak ada riwayat penyakit dahulu',
+                rpo: rpo || 'Tidak ada riwayat penggunaan obat',
+                medications: medicationList
+            };
+            
+            inpatients.push(newPatient);
+            
+            // Initialize handover data for new patient
+            handoverData[rmNumber] = {};
+            
+            // Save to localStorage
+            saveToLocalStorage();
+            
+            updateDashboard();
+            updateInpatientList();
+            updateHandoverPatientList();
+            
+            // Clear form
+            event.target.reset();
+            document.getElementById('newPatientAge').value = '';
+            document.getElementById('newPatientRPD').value = '';
+            document.getElementById('newPatientRPO').value = '';
+            
+            // Reset doctor fields to only one
+            const doctorContainer = document.getElementById('doctorContainer');
+            doctorContainer.innerHTML = `
+                <div class="flex gap-2">
+                    <select class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 doctor-select" required>
+                        <option value="">Pilih dokter</option>
+                    </select>
+                    <button type="button" onclick="addDoctorField()" class="px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">+</button>
+                </div>
+            `;
+            
+            // Reset medication fields
+            const medicationContainer = document.getElementById('medicationContainer');
+            const firstRow = medicationContainer.querySelector('.medication-row');
+            firstRow.querySelector('.medication-name').value = '';
+            firstRow.querySelector('.medication-route').value = '';
+            firstRow.querySelector('.medication-dose').value = '';
+            
+            // Remove extra medication rows
+            const extraRows = medicationContainer.querySelectorAll('.medication-row:not(:last-child)');
+            extraRows.forEach(row => row.remove());
+            
+            populateDoctorOptions();
+            
+            alert(`Pasien ${name} berhasil didaftarkan dengan nomor RM: ${rmNumber}`);
+        }
+
+        function updateDashboard() {
+            const totalBeds = 32;
+            const occupiedBeds = inpatients.length;
+            const availableBeds = totalBeds - occupiedBeds;
+            
+            document.getElementById('availableBeds').textContent = availableBeds;
+            document.getElementById('occupiedBeds').textContent = occupiedBeds;
+            
+            // Count TB patients
+            const tbPatients = inpatients.filter(p => 
+                p.diagnosis.toLowerCase().includes('tb') || 
+                p.diagnosis.toLowerCase().includes('tuberkulosis')
+            );
+            const suspectTbPatients = inpatients.filter(p => 
+                p.diagnosis.toLowerCase().includes('suspect tb') || 
+                p.diagnosis.toLowerCase().includes('suspek tb')
+            );
+            const nonTbPatients = inpatients.filter(p => 
+                !p.diagnosis.toLowerCase().includes('tb') && 
+                !p.diagnosis.toLowerCase().includes('tuberkulosis')
+            );
+            
+            document.getElementById('tbPatients').textContent = tbPatients.length;
+            document.getElementById('tbPatientsCount').textContent = tbPatients.length;
+            document.getElementById('suspectTbPatients').textContent = suspectTbPatients.length;
+            document.getElementById('nonTbPatients').textContent = nonTbPatients.length;
+            
+            // Count active doctors
+            const activeDoctors = new Set();
+            inpatients.forEach(patient => {
+                patient.doctors.forEach(doctor => activeDoctors.add(doctor));
+            });
+            
+            document.getElementById('activeDoctors').textContent = activeDoctors.size;
+            
+            // Update doctor details
+            const doctorDetails = document.getElementById('doctorDetails');
+            if (activeDoctors.size === 0) {
+                doctorDetails.innerHTML = '<p class="text-gray-500 text-center py-8">Belum ada pasien terdaftar</p>';
+            } else {
+                const doctorList = Array.from(activeDoctors).map(doctor => {
+                    const patients = inpatients.filter(p => p.doctors.includes(doctor));
+                    const shortName = doctor.split(',')[0]; // Get name before comma
+                    return `
+                        <div class="flex justify-between items-center p-2 bg-gray-50 rounded hover:bg-blue-50 cursor-pointer transition-colors" onclick="showDoctorPatients('${doctor}')">
+                            <div>
+                                <div class="font-medium text-sm text-gray-900">${shortName}</div>
+                                <div class="text-xs text-gray-500">${patients.length} pasien</div>
+                            </div>
+                            <div class="text-sm font-bold text-blue-600">${patients.length}</div>
+                        </div>
+                    `;
+                }).join('');
+                doctorDetails.innerHTML = doctorList;
+            }
+        }
+
+        function filterPatients(type) {
+            currentFilter = type;
+            updateInpatientList();
+            
+            // Update button styles
+            document.querySelectorAll('[id^="filter-"]').forEach(btn => {
+                btn.className = 'px-2 py-1 text-xs bg-gray-200 text-gray-700 rounded';
+            });
+            document.getElementById(`filter-${type}`).className = 'px-2 py-1 text-xs bg-blue-600 text-white rounded';
+        }
+
+        function filterHandoverPatients(type) {
+            currentHandoverFilter = type;
+            updateHandoverPatientList();
+            
+            // Update button styles
+            document.querySelectorAll('[id^="handover-filter-"]').forEach(btn => {
+                btn.className = 'px-2 py-1 text-xs bg-gray-200 text-gray-700 rounded';
+            });
+            document.getElementById(`handover-filter-${type}`).className = 'px-2 py-1 text-xs bg-blue-600 text-white rounded';
+        }
+
+        function updateInpatientList() {
+            const listContainer = document.getElementById('inpatientList');
+            listContainer.innerHTML = '';
+            
+            // Filter patients by gender
+            let filteredPatients = [...inpatients];
+            if (currentFilter === 'male') {
+                filteredPatients = inpatients.filter(p => p.gender === 'Laki-laki');
+            } else if (currentFilter === 'female') {
+                filteredPatients = inpatients.filter(p => p.gender === 'Perempuan');
+            }
+            
+            if (filteredPatients.length === 0) {
+                listContainer.innerHTML = '<div class="p-4 text-center text-gray-500">Tidak ada pasien</div>';
+                return;
+            }
+            
+            // Group patients by room
+            const patientsByRoom = {};
+            filteredPatients.forEach(patient => {
+                if (!patientsByRoom[patient.room]) {
+                    patientsByRoom[patient.room] = [];
+                }
+                patientsByRoom[patient.room].push(patient);
+            });
+            
+            // Sort rooms
+            const sortedRooms = Object.keys(patientsByRoom).sort((a, b) => {
+                const roomA = a.replace('Gelatik ', '').split(/(\d+)/).map((x, i) => i % 2 ? parseInt(x) : x);
+                const roomB = b.replace('Gelatik ', '').split(/(\d+)/).map((x, i) => i % 2 ? parseInt(x) : x);
+                
+                if (roomA[1] !== roomB[1]) return roomA[1] - roomB[1];
+                return roomA[2].localeCompare(roomB[2]);
+            });
+            
+            // Display grouped patients
+            sortedRooms.forEach(room => {
+                // Room header
+                const roomHeader = document.createElement('div');
+                roomHeader.className = 'bg-blue-100 px-3 py-2 text-sm font-semibold text-blue-900 border-b border-blue-200';
+                roomHeader.innerHTML = `
+                    <div class="flex items-center">
+                        ðŸ  ${room} (${patientsByRoom[room].length} pasien)
+                    </div>
+                `;
+                listContainer.appendChild(roomHeader);
+                
+                // Patients in room
+                patientsByRoom[room].forEach(patient => {
+                    const genderIcon = patient.gender === 'Laki-laki' ? 'ðŸ‘¨' : 'ðŸ‘©';
+                    const genderColor = patient.gender === 'Laki-laki' ? 'bg-blue-500' : 'bg-pink-500';
+                    
+                    const patientElement = document.createElement('div');
+                    patientElement.className = 'p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 ml-4';
+                    patientElement.onclick = () => selectPatient(patient.id, patient.name);
+                    patientElement.innerHTML = `
+                        <div class="flex items-center">
+                            <div class="w-6 h-6 ${genderColor} rounded-full flex items-center justify-center text-white text-xs font-medium">
+                                ${genderIcon}
+                            </div>
+                            <div class="ml-2 flex-1">
+                                <p class="text-sm font-medium text-gray-900">${patient.name}</p>
+                                <p class="text-xs text-gray-500">RM: ${patient.id}</p>
+                            </div>
+                        </div>
+                    `;
+                    listContainer.appendChild(patientElement);
+                });
+            });
+        }
+
+        function updateHandoverPatientList() {
+            const listContainer = document.getElementById('handoverPatientList');
+            listContainer.innerHTML = '';
+            
+            // Filter patients by gender
+            let filteredPatients = [...inpatients];
+            if (currentHandoverFilter === 'male') {
+                filteredPatients = inpatients.filter(p => p.gender === 'Laki-laki');
+            } else if (currentHandoverFilter === 'female') {
+                filteredPatients = inpatients.filter(p => p.gender === 'Perempuan');
+            }
+            
+            if (filteredPatients.length === 0) {
+                listContainer.innerHTML = '<div class="p-4 text-center text-gray-500">Tidak ada pasien</div>';
+                return;
+            }
+            
+            // Group patients by room
+            const patientsByRoom = {};
+            filteredPatients.forEach(patient => {
+                if (!patientsByRoom[patient.room]) {
+                    patientsByRoom[patient.room] = [];
+                }
+                patientsByRoom[patient.room].push(patient);
+            });
+            
+            // Sort rooms
+            const sortedRooms = Object.keys(patientsByRoom).sort((a, b) => {
+                const roomA = a.replace('Gelatik ', '').split(/(\d+)/).map((x, i) => i % 2 ? parseInt(x) : x);
+                const roomB = b.replace('Gelatik ', '').split(/(\d+)/).map((x, i) => i % 2 ? parseInt(x) : x);
+                
+                if (roomA[1] !== roomB[1]) return roomA[1] - roomB[1];
+                return roomA[2].localeCompare(roomB[2]);
+            });
+            
+            // Display grouped patients
+            sortedRooms.forEach(room => {
+                // Room header
+                const roomHeader = document.createElement('div');
+                roomHeader.className = 'bg-blue-100 px-3 py-2 text-sm font-semibold text-blue-900 border-b border-blue-200';
+                roomHeader.innerHTML = `
+                    <div class="flex items-center">
+                        ðŸ  ${room} (${patientsByRoom[room].length} pasien)
+                    </div>
+                `;
+                listContainer.appendChild(roomHeader);
+                
+                // Patients in room
+                patientsByRoom[room].forEach(patient => {
+                    const genderIcon = patient.gender === 'Laki-laki' ? 'ðŸ‘¨' : 'ðŸ‘©';
+                    const genderColor = patient.gender === 'Laki-laki' ? 'bg-blue-500' : 'bg-pink-500';
+                    
+                    const patientElement = document.createElement('div');
+                    patientElement.className = 'p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 ml-4';
+                    patientElement.onclick = () => selectHandoverPatient(patient.id, patient.name);
+                    patientElement.innerHTML = `
+                        <div class="flex items-center">
+                            <div class="w-6 h-6 ${genderColor} rounded-full flex items-center justify-center text-white text-xs font-medium">
+                                ${genderIcon}
+                            </div>
+                            <div class="ml-2 flex-1">
+                                <p class="text-sm font-medium text-gray-900">${patient.name}</p>
+                                <p class="text-xs text-gray-500">RM: ${patient.id}</p>
+                            </div>
+                        </div>
+                    `;
+                    listContainer.appendChild(patientElement);
+                });
+            });
+        }
+
+        function selectPatient(patientId, patientName) {
+            const patient = inpatients.find(p => p.id === patientId);
+            if (!patient) return;
+            
+            // Create medication table
+            const medicationRows = patient.medications.map(med => {
+                return `
+                    <tr class="border-b border-gray-200">
+                        <td class="py-2 px-3 text-sm">${med.name}</td>
+                        <td class="py-2 px-3 text-sm">${med.route}</td>
+                        <td class="py-2 px-3 text-sm">${med.dose}</td>
+                    </tr>
+                `;
+            }).join('') || '<tr><td colspan="3" class="py-4 text-center text-gray-500">Belum ada obat</td></tr>';
+            
+            const container = document.getElementById('patientDetailsContainer');
+            container.innerHTML = `
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-900 uppercase">${patient.name}</h2>
+                    <div class="space-x-2">
+                        <button onclick="editPatient('${patientId}')" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
+                            Edit Data
+                        </button>
+                        <button onclick="deletePatient('${patientId}')" class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors">
+                            Hapus Pasien
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Identitas Pasien -->
+                <div class="bg-gray-50 p-6 rounded-lg mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Identitas Pasien</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div>
+                            <span class="text-sm font-medium text-gray-600">No. RM:</span>
+                            <p class="text-sm text-gray-900">${patient.id}</p>
+                        </div>
+                        <div>
+                            <span class="text-sm font-medium text-gray-600">Tanggal Lahir:</span>
+                            <p class="text-sm text-gray-900">${patient.birth}</p>
+                        </div>
+                        <div>
+                            <span class="text-sm font-medium text-gray-600">Umur:</span>
+                            <p class="text-sm text-gray-900">${patient.age}</p>
+                        </div>
+                        <div>
+                            <span class="text-sm font-medium text-gray-600">Jenis Kelamin:</span>
+                            <p class="text-sm text-gray-900">${patient.gender}</p>
+                        </div>
+                        <div>
+                            <span class="text-sm font-medium text-gray-600">Ruang:</span>
+                            <p class="text-sm text-gray-900">${patient.room}</p>
+                        </div>
+                        <div>
+                            <span class="text-sm font-medium text-gray-600">Penjamin:</span>
+                            <p class="text-sm text-gray-900">${patient.insurance}</p>
+                        </div>
+                        <div class="md:col-span-2">
+                            <span class="text-sm font-medium text-gray-600">Alamat:</span>
+                            <p class="text-sm text-gray-900">${patient.address}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Informasi Medis -->
+                <div class="bg-white border rounded-lg p-6 mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Informasi Medis</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <span class="text-sm font-medium text-gray-600">Dokter Penanggung Jawab:</span>
+                            <div class="text-sm text-gray-900 mt-1">
+                                ${patient.doctors.map((doctor, index) => `
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${index === 0 ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}">
+                                            ${index === 0 ? 'ðŸ‘¨â€âš•ï¸ DPJP Utama' : 'ðŸ‘¨â€âš•ï¸ DPJP ' + (index + 1)}
+                                        </span>
+                                        <span>${doctor}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        <div>
+                            <span class="text-sm font-medium text-gray-600">Diagnosa:</span>
+                            <p class="text-sm text-gray-900 mt-1">${patient.diagnosis}</p>
+                        </div>
+                        <div>
+                            <span class="text-sm font-medium text-gray-600">Pemeriksaan Penunjang:</span>
+                            <div class="text-sm text-gray-900 mt-1 whitespace-pre-line">${patient.examination}</div>
+                        </div>
+                        <div>
+                            <span class="text-sm font-medium text-gray-600">RPD (Riwayat Penyakit Dahulu):</span>
+                            <div class="text-sm text-gray-900 mt-1 whitespace-pre-line">${patient.rpd || 'Tidak ada riwayat penyakit dahulu'}</div>
+                        </div>
+                        <div>
+                            <span class="text-sm font-medium text-gray-600">RPO (Riwayat Penggunaan Obat):</span>
+                            <div class="text-sm text-gray-900 mt-1 whitespace-pre-line">${patient.rpo || 'Tidak ada riwayat penggunaan obat'}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Daftar Obat -->
+                <div class="bg-white border rounded-lg p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold text-gray-900">Daftar Obat & Jadwal Pemberian</h3>
+                        <button onclick="printMedicationSchedule('${patient.id}')" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 text-sm">
+                            ðŸ–¨ï¸ Print Jadwal
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="py-3 px-3 text-left text-sm font-medium text-gray-700">Nama Obat</th>
+                                    <th class="py-3 px-3 text-left text-sm font-medium text-gray-700">Rute</th>
+                                    <th class="py-3 px-3 text-left text-sm font-medium text-gray-700">Dosis & Frekuensi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${medicationRows}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Jadwal Pemberian Obat -->
+                    <div class="mt-6">
+                        <h4 class="text-md font-semibold text-gray-900 mb-3">Jadwal Pemberian Obat (7 Hari)</h4>
+                        <div id="medicationSchedule-${patient.id}" class="overflow-x-auto">
+                            ${generateMedicationSchedule(patient.medications)}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Load medication status after rendering
+            setTimeout(() => {
+                loadMedicationStatus();
+            }, 100);
+        }
+
+        function deletePatient(patientId) {
+            const patient = inpatients.find(p => p.id === patientId);
+            if (!patient) return;
+            
+            if (confirm(`Apakah Anda yakin ingin menghapus data pasien ${patient.name}? Data ini tidak dapat dikembalikan.`)) {
+                // Remove from inpatients array
+                const index = inpatients.findIndex(p => p.id === patientId);
+                if (index > -1) {
+                    inpatients.splice(index, 1);
+                }
+                
+                // Remove from handover data
+                delete handoverData[patientId];
+                
+                // Save to localStorage
+                saveToLocalStorage();
+                
+                // Update lists
+                updateInpatientList();
+                updateHandoverPatientList();
+                
+                // Clear detail view
+                const container = document.getElementById('patientDetailsContainer');
+                container.innerHTML = `
+                    <div class="text-center text-gray-500 py-8">
+                        <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                        <p>Pasien telah dihapus. Pilih pasien lain untuk melihat detail.</p>
+                    </div>
+                `;
+                
+                alert(`Data pasien ${patient.name} berhasil dihapus.`);
+            }
+        }
+
+        function editPatient(patientId) {
+            const patient = inpatients.find(p => p.id === patientId);
+            if (!patient) return;
+            
+            // Create doctor fields HTML
+            let doctorFieldsHtml = '';
+            if (patient.doctors && patient.doctors.length > 0) {
+                patient.doctors.forEach((doctor, index) => {
+                    doctorFieldsHtml += `
+                        <div class="flex gap-2">
+                            <select class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 doctor-select">
+                                <option value="">Pilih dokter</option>
+                                ${dpjpList.map(dpjp => `<option value="${dpjp}" ${dpjp === doctor ? 'selected' : ''}>${dpjp}</option>`).join('')}
+                            </select>
+                            ${index === 0 ? 
+                                '<button type="button" onclick="addEditDoctorField()" class="px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">+</button>' :
+                                '<button type="button" onclick="removeEditDoctorField(this)" class="px-3 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">-</button>'
+                            }
+                        </div>
+                    `;
+                });
+            } else {
+                doctorFieldsHtml = `
+                    <div class="flex gap-2">
+                        <select class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 doctor-select">
+                            <option value="">Pilih dokter</option>
+                            ${dpjpList.map(dpjp => `<option value="${dpjp}">${dpjp}</option>`).join('')}
+                        </select>
+                        <button type="button" onclick="addEditDoctorField()" class="px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">+</button>
+                    </div>
+                `;
+            }
+            
+            // Create medication fields HTML
+            let medicationFieldsHtml = '';
+            if (patient.medications && patient.medications.length > 0) {
+                patient.medications.forEach((med, index) => {
+                    medicationFieldsHtml += `
+                        <div class="medication-row grid grid-cols-12 gap-2">
+                            <div class="col-span-5 relative">
+                                <input type="text" class="w-full px-2 py-1 border border-gray-300 rounded text-sm medication-name" placeholder="Nama obat" value="${med.name}" oninput="showMedicationSuggestions(this)">
+                                <div class="medication-suggestions absolute z-10 w-full bg-white border border-gray-300 rounded-b max-h-40 overflow-y-auto hidden"></div>
+                            </div>
+                            <select class="col-span-2 px-2 py-1 border border-gray-300 rounded text-sm medication-route">
+                                <option value="">Pilih</option>
+                                <option value="PO" ${med.route === 'PO' ? 'selected' : ''}>PO (Oral)</option>
+                                <option value="IV" ${med.route === 'IV' ? 'selected' : ''}>IV (Intravena)</option>
+                                <option value="IM" ${med.route === 'IM' ? 'selected' : ''}>IM (Intramuskular)</option>
+                                <option value="SC" ${med.route === 'SC' ? 'selected' : ''}>SC (Subkutan)</option>
+                                <option value="Topikal" ${med.route === 'Topikal' ? 'selected' : ''}>Topikal</option>
+                                <option value="Inhalasi" ${med.route === 'Inhalasi' ? 'selected' : ''}>Inhalasi</option>
+                                <option value="Rektal" ${med.route === 'Rektal' ? 'selected' : ''}>Rektal</option>
+                                <option value="Sublingual" ${med.route === 'Sublingual' ? 'selected' : ''}>Sublingual</option>
+                            </select>
+                            <input type="text" class="col-span-4 px-2 py-1 border border-gray-300 rounded text-sm medication-dose" placeholder="Contoh: 500mg 3x1" value="${med.dose}">
+                            <button type="button" onclick="removeMedicationRow(this)" class="col-span-1 bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600">Ã—</button>
+                        </div>
+                    `;
+                });
+            } else {
+                medicationFieldsHtml = `
+                    <div class="medication-row grid grid-cols-12 gap-2">
+                        <div class="col-span-5 relative">
+                            <input type="text" class="w-full px-2 py-1 border border-gray-300 rounded text-sm medication-name" placeholder="Nama obat" oninput="showMedicationSuggestions(this)">
+                            <div class="medication-suggestions absolute z-10 w-full bg-white border border-gray-300 rounded-b max-h-40 overflow-y-auto hidden"></div>
+                        </div>
+                        <select class="col-span-2 px-2 py-1 border border-gray-300 rounded text-sm medication-route">
+                            <option value="">Pilih</option>
+                            <option value="PO">PO (Oral)</option>
+                            <option value="IV">IV (Intravena)</option>
+                            <option value="IM">IM (Intramuskular)</option>
+                            <option value="SC">SC (Subkutan)</option>
+                            <option value="Topikal">Topikal</option>
+                            <option value="Inhalasi">Inhalasi</option>
+                            <option value="Rektal">Rektal</option>
+                            <option value="Sublingual">Sublingual</option>
+                        </select>
+                        <input type="text" class="col-span-4 px-2 py-1 border border-gray-300 rounded text-sm medication-dose" placeholder="Contoh: 500mg 3x1">
+                        <button type="button" onclick="removeMedicationRow(this)" class="col-span-1 bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600">Ã—</button>
+                    </div>
+                `;
+            }
+            
+            const container = document.getElementById('patientDetailsContainer');
+            container.innerHTML = `
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-semibold text-gray-900">Edit Data Pasien - ${patient.name}</h2>
+                    <div class="space-x-2">
+                        <button onclick="saveEditedPatient('${patientId}')" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors">
+                            ðŸ’¾ Simpan
+                        </button>
+                        <button onclick="selectPatient('${patientId}', '${patient.name}')" class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors">
+                            âŒ Batal
+                        </button>
+                    </div>
+                </div>
+                
+                <form id="editPatientForm" class="space-y-6">
+                    <!-- Identitas Pasien -->
+                    <div class="bg-gray-50 p-6 rounded-lg">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Identitas Pasien</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap</label>
+                                <input type="text" id="editPatientName" value="${patient.name}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">No. Rekam Medis</label>
+                                <input type="text" id="editPatientRM" value="${patient.id}" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100" readonly>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Lahir</label>
+                                <input type="date" id="editPatientBirth" value="${patient.birth}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="calculateEditAge()" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Umur</label>
+                                <input type="text" id="editPatientAge" value="${patient.age}" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100" readonly>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Jenis Kelamin</label>
+                                <select id="editPatientGender" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                                    <option value="">Pilih jenis kelamin</option>
+                                    <option value="Laki-laki" ${patient.gender === 'Laki-laki' ? 'selected' : ''}>Laki-laki</option>
+                                    <option value="Perempuan" ${patient.gender === 'Perempuan' ? 'selected' : ''}>Perempuan</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Ruang Rawat</label>
+                                <select id="editPatientRoom" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                                    <option value="">Pilih ruang rawat</option>
+                                    <option value="Gelatik 1A" ${patient.room === 'Gelatik 1A' ? 'selected' : ''}>Gelatik 1A</option>
+                                    <option value="Gelatik 1B" ${patient.room === 'Gelatik 1B' ? 'selected' : ''}>Gelatik 1B</option>
+                                    <option value="Gelatik 1C" ${patient.room === 'Gelatik 1C' ? 'selected' : ''}>Gelatik 1C</option>
+                                    <option value="Gelatik 1D" ${patient.room === 'Gelatik 1D' ? 'selected' : ''}>Gelatik 1D</option>
+                                    <option value="Gelatik 2A" ${patient.room === 'Gelatik 2A' ? 'selected' : ''}>Gelatik 2A</option>
+                                    <option value="Gelatik 2B" ${patient.room === 'Gelatik 2B' ? 'selected' : ''}>Gelatik 2B</option>
+                                    <option value="Gelatik 2C" ${patient.room === 'Gelatik 2C' ? 'selected' : ''}>Gelatik 2C</option>
+                                    <option value="Gelatik 2D" ${patient.room === 'Gelatik 2D' ? 'selected' : ''}>Gelatik 2D</option>
+                                    <option value="Gelatik 3A" ${patient.room === 'Gelatik 3A' ? 'selected' : ''}>Gelatik 3A</option>
+                                    <option value="Gelatik 3B" ${patient.room === 'Gelatik 3B' ? 'selected' : ''}>Gelatik 3B</option>
+                                    <option value="Gelatik 3C" ${patient.room === 'Gelatik 3C' ? 'selected' : ''}>Gelatik 3C</option>
+                                    <option value="Gelatik 3D" ${patient.room === 'Gelatik 3D' ? 'selected' : ''}>Gelatik 3D</option>
+                                    <option value="Gelatik 4A" ${patient.room === 'Gelatik 4A' ? 'selected' : ''}>Gelatik 4A</option>
+                                    <option value="Gelatik 4B" ${patient.room === 'Gelatik 4B' ? 'selected' : ''}>Gelatik 4B</option>
+                                    <option value="Gelatik 4C" ${patient.room === 'Gelatik 4C' ? 'selected' : ''}>Gelatik 4C</option>
+                                    <option value="Gelatik 4D" ${patient.room === 'Gelatik 4D' ? 'selected' : ''}>Gelatik 4D</option>
+                                    <option value="Gelatik 5A" ${patient.room === 'Gelatik 5A' ? 'selected' : ''}>Gelatik 5A</option>
+                                    <option value="Gelatik 5B" ${patient.room === 'Gelatik 5B' ? 'selected' : ''}>Gelatik 5B</option>
+                                    <option value="Gelatik 5C" ${patient.room === 'Gelatik 5C' ? 'selected' : ''}>Gelatik 5C</option>
+                                    <option value="Gelatik 5D" ${patient.room === 'Gelatik 5D' ? 'selected' : ''}>Gelatik 5D</option>
+                                    <option value="Gelatik 6A" ${patient.room === 'Gelatik 6A' ? 'selected' : ''}>Gelatik 6A</option>
+                                    <option value="Gelatik 6B" ${patient.room === 'Gelatik 6B' ? 'selected' : ''}>Gelatik 6B</option>
+                                    <option value="Gelatik 6C" ${patient.room === 'Gelatik 6C' ? 'selected' : ''}>Gelatik 6C</option>
+                                    <option value="Gelatik 6D" ${patient.room === 'Gelatik 6D' ? 'selected' : ''}>Gelatik 6D</option>
+                                    <option value="Gelatik 7A" ${patient.room === 'Gelatik 7A' ? 'selected' : ''}>Gelatik 7A</option>
+                                    <option value="Gelatik 7B" ${patient.room === 'Gelatik 7B' ? 'selected' : ''}>Gelatik 7B</option>
+                                    <option value="Gelatik 7C" ${patient.room === 'Gelatik 7C' ? 'selected' : ''}>Gelatik 7C</option>
+                                    <option value="Gelatik 7D" ${patient.room === 'Gelatik 7D' ? 'selected' : ''}>Gelatik 7D</option>
+                                    <option value="Gelatik 8A" ${patient.room === 'Gelatik 8A' ? 'selected' : ''}>Gelatik 8A</option>
+                                    <option value="Gelatik 8B" ${patient.room === 'Gelatik 8B' ? 'selected' : ''}>Gelatik 8B</option>
+                                    <option value="Gelatik 8C" ${patient.room === 'Gelatik 8C' ? 'selected' : ''}>Gelatik 8C</option>
+                                    <option value="Gelatik 8D" ${patient.room === 'Gelatik 8D' ? 'selected' : ''}>Gelatik 8D</option>
+                                    <option value="Gelatik 9A" ${patient.room === 'Gelatik 9A' ? 'selected' : ''}>Gelatik 9A</option>
+                                    <option value="Gelatik 9B" ${patient.room === 'Gelatik 9B' ? 'selected' : ''}>Gelatik 9B</option>
+                                    <option value="Gelatik 9C" ${patient.room === 'Gelatik 9C' ? 'selected' : ''}>Gelatik 9C</option>
+                                    <option value="Gelatik 9D" ${patient.room === 'Gelatik 9D' ? 'selected' : ''}>Gelatik 9D</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Penjamin</label>
+                                <select id="editPatientInsurance" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                                    <option value="">Pilih penjamin</option>
+                                    <option value="BPJS Kelas 1" ${patient.insurance === 'BPJS Kelas 1' ? 'selected' : ''}>BPJS Kelas 1</option>
+                                    <option value="BPJS Kelas 2" ${patient.insurance === 'BPJS Kelas 2' ? 'selected' : ''}>BPJS Kelas 2</option>
+                                    <option value="BPJS Kelas 3" ${patient.insurance === 'BPJS Kelas 3' ? 'selected' : ''}>BPJS Kelas 3</option>
+                                    <option value="BPJS PBI" ${patient.insurance === 'BPJS PBI' ? 'selected' : ''}>BPJS PBI</option>
+                                    <option value="BPJS PBID" ${patient.insurance === 'BPJS PBID' ? 'selected' : ''}>BPJS PBID</option>
+                                    <option value="Lainnya" ${patient.insurance === 'Lainnya' ? 'selected' : ''}>Lainnya</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Alamat</label>
+                            <textarea id="editPatientAddress" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>${patient.address}</textarea>
+                        </div>
+                    </div>
+
+                    <!-- Dokter -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Dokter Penanggung Jawab</label>
+                        <div id="editDoctorContainer" class="space-y-2">
+                            ${doctorFieldsHtml}
+                        </div>
+                    </div>
+
+                    <!-- Informasi Medis -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Diagnosa</label>
+                        <textarea id="editDiagnosis" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>${patient.diagnosis}</textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Pemeriksaan Penunjang</label>
+                        <textarea id="editExamination" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Laboratorium, Radiologi, dll">${patient.examination}</textarea>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">RPD (Riwayat Penyakit Dahulu)</label>
+                            <textarea id="editRPD" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Riwayat penyakit yang pernah diderita sebelumnya">${patient.rpd || ''}</textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">RPO (Riwayat Penggunaan Obat)</label>
+                            <textarea id="editRPO" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Riwayat obat yang sedang/pernah dikonsumsi">${patient.rpo || ''}</textarea>
+                        </div>
+                    </div>
+
+                    <!-- Daftar Obat -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Daftar Obat</label>
+                        <div class="border border-gray-300 rounded-md p-4">
+                            <div class="flex justify-between items-center mb-3">
+                                <span class="text-sm font-medium text-gray-700">Obat-obatan</span>
+                                <button type="button" onclick="addMedicationRow()" class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">+ Tambah Obat</button>
+                            </div>
+                            <div id="medicationContainer" class="space-y-2">
+                                <div class="grid grid-cols-12 gap-2 text-sm font-medium text-gray-700 pb-2 border-b">
+                                    <div class="col-span-5">Nama Obat</div>
+                                    <div class="col-span-2">Rute</div>
+                                    <div class="col-span-4">Dosis & Frekuensi</div>
+                                    <div class="col-span-1">Aksi</div>
+                                </div>
+                                ${medicationFieldsHtml}
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            `;
+        }
+
+        function calculateEditAge() {
+            const birthDate = document.getElementById('editPatientBirth').value;
+            if (birthDate) {
+                const today = new Date();
+                const birth = new Date(birthDate);
+                let age = today.getFullYear() - birth.getFullYear();
+                const monthDiff = today.getMonth() - birth.getMonth();
+                
+                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+                    age--;
+                }
+                
+                document.getElementById('editPatientAge').value = age + ' tahun';
+            }
+        }
+
+        function addEditDoctorField() {
+            const container = document.getElementById('editDoctorContainer');
+            const newField = document.createElement('div');
+            newField.className = 'flex gap-2';
+            newField.innerHTML = `
+                <select class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 doctor-select">
+                    <option value="">Pilih dokter</option>
+                    ${dpjpList.map(dpjp => `<option value="${dpjp}">${dpjp}</option>`).join('')}
+                </select>
+                <button type="button" onclick="removeEditDoctorField(this)" class="px-3 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">-</button>
+            `;
+            container.appendChild(newField);
+        }
+
+        function removeEditDoctorField(button) {
+            button.parentElement.remove();
+        }
+
+        function saveEditedPatient(patientId) {
+            const patient = inpatients.find(p => p.id === patientId);
+            if (!patient) return;
+            
+            // Get basic patient info
+            patient.name = document.getElementById('editPatientName').value;
+            patient.birth = document.getElementById('editPatientBirth').value;
+            patient.age = document.getElementById('editPatientAge').value;
+            patient.gender = document.getElementById('editPatientGender').value;
+            patient.room = document.getElementById('editPatientRoom').value;
+            patient.insurance = document.getElementById('editPatientInsurance').value;
+            patient.address = document.getElementById('editPatientAddress').value;
+            patient.diagnosis = document.getElementById('editDiagnosis').value;
+            patient.examination = document.getElementById('editExamination').value;
+            patient.rpd = document.getElementById('editRPD').value || 'Tidak ada riwayat penyakit dahulu';
+            patient.rpo = document.getElementById('editRPO').value || 'Tidak ada riwayat penggunaan obat';
+            
+            // Get selected doctors
+            const doctorSelects = document.querySelectorAll('#editDoctorContainer .doctor-select');
+            const doctors = [];
+            doctorSelects.forEach(select => {
+                if (select.value) {
+                    doctors.push(select.value);
+                }
+            });
+            
+            if (doctors.length === 0) {
+                alert('Pilih minimal satu dokter penanggung jawab!');
+                return;
+            }
+            
+            patient.doctors = doctors;
+            
+            // Get medications
+            const medicationRows = document.querySelectorAll('#medicationContainer .medication-row');
+            const medicationList = [];
+            medicationRows.forEach(row => {
+                const name = row.querySelector('.medication-name').value;
+                const route = row.querySelector('.medication-route').value;
+                const dose = row.querySelector('.medication-dose').value;
+                if (name && route && dose) {
+                    medicationList.push({ name, route, dose });
+                }
+            });
+            
+            patient.medications = medicationList;
+            
+            // Save to localStorage
+            saveToLocalStorage();
+            
+            updateDashboard();
+            updateInpatientList();
+            updateHandoverPatientList();
+            selectPatient(patientId, patient.name);
+            
+            alert('âœ… Data pasien berhasil disimpan!');
+        }
+
+        let currentHandoverDate = new Date().toISOString().split('T')[0];
+
+        // Motivational quotes for healthcare workers
+        const motivationalQuotes = [
+            "Setiap pasien yang Anda rawat adalah kesempatan untuk membuat perbedaan.",
+            "Kebaikan kecil yang Anda berikan hari ini bisa mengubah hidup seseorang.",
+            "Anda adalah cahaya harapan bagi mereka yang membutuhkan penyembuhan.",
+            "Dedikasi Anda dalam merawat pasien adalah bentuk cinta kasih yang mulia.",
+            "Setiap senyuman yang Anda berikan adalah obat terbaik untuk jiwa yang sakit.",
+            "Profesi Anda adalah panggilan mulia untuk melayani sesama manusia.",
+            "Kesabaran dan ketelitian Anda menyelamatkan nyawa setiap hari.",
+            "Anda adalah malaikat tanpa sayap bagi pasien dan keluarganya.",
+            "Kerja keras Anda hari ini adalah investasi untuk kesehatan masyarakat.",
+            "Setiap tindakan medis yang Anda lakukan adalah bentuk kepedulian yang nyata."
+        ];
+
+        function displayMotivationalQuote() {
+            const today = new Date();
+            const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
+            const quoteIndex = dayOfYear % motivationalQuotes.length;
+            document.getElementById('motivationalQuote').textContent = motivationalQuotes[quoteIndex];
+        }
+
+        function selectHandoverPatient(patientId, patientName) {
+            if (!handoverData[patientId]) {
+                handoverData[patientId] = {};
+            }
+            
+            const handover = handoverData[patientId][currentHandoverDate] ? handoverData[patientId][currentHandoverDate] : {
+                shift1: { nurse: '', td: '', nadi: '', suhu: '', spo2: '', keluhan: '', notes: '' },
+                shift2: { nurse: '', td: '', nadi: '', suhu: '', spo2: '', keluhan: '', notes: '' },
+                shift3: { nurse: '', td: '', nadi: '', suhu: '', spo2: '', keluhan: '', notes: '' }
+            };
+            
+            const container = document.getElementById('handoverContainer');
+            container.innerHTML = `
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-semibold text-gray-900">ðŸ‘©â€âš•ï¸ Operan Harian - ${patientName}</h2>
+                    <div class="flex items-center gap-4">
+                        <div class="flex items-center gap-2">
+                            <button onclick="changeHandoverDate('${patientId}', '${patientName}', -1)" class="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600">â† Kemarin</button>
+                            <input type="date" id="handoverDatePicker" value="${currentHandoverDate}" onchange="setHandoverDate('${patientId}', '${patientName}', this.value)" class="px-3 py-1 border border-gray-300 rounded text-sm">
+                            <button onclick="changeHandoverDate('${patientId}', '${patientName}', 1)" class="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600">Besok â†’</button>
+                        </div>
+                        <button onclick="printHandoverReport('${patientId}')" class="bg-blue-600 text-white px-4 py-1 rounded text-sm hover:bg-blue-700">ðŸ–¨ï¸ Print</button>
+                    </div>
+                </div>
+                
+                <!-- Shift Cards Layout -->
+                <div class="space-y-4">
+                    <!-- Shift Pagi -->
+                    <div class="bg-gradient-to-r from-blue-50 to-blue-100 border-l-4 border-blue-500 rounded-lg p-4">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="text-lg font-semibold text-blue-900">ðŸŒ… Shift Pagi (07:00 - 14:00)</h3>
+                            <button onclick="quickEditHandover('${patientId}', 'shift1')" class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">âœï¸ Edit</button>
+                        </div>
+                        <div class="grid grid-cols-2 md:grid-cols-6 gap-3 text-sm">
+                            <div>
+                                <span class="font-medium text-blue-800">Perawat:</span>
+                                <p class="text-gray-900">${handover.shift1.nurse || '-'}</p>
+                            </div>
+                            <div>
+                                <span class="font-medium text-blue-800">TD:</span>
+                                <p class="text-gray-900">${handover.shift1.td || '-'}</p>
+                            </div>
+                            <div>
+                                <span class="font-medium text-blue-800">Nadi:</span>
+                                <p class="text-gray-900">${handover.shift1.nadi || '-'}</p>
+                            </div>
+                            <div>
+                                <span class="font-medium text-blue-800">Suhu:</span>
+                                <p class="text-gray-900">${handover.shift1.suhu || '-'}</p>
+                            </div>
+                            <div>
+                                <span class="font-medium text-blue-800">SpO2:</span>
+                                <p class="text-gray-900">${handover.shift1.spo2 || '-'}</p>
+                            </div>
+                            <div>
+                                <span class="font-medium text-blue-800">Keluhan:</span>
+                                <p class="text-gray-900">${handover.shift1.keluhan || '-'}</p>
+                            </div>
+                        </div>
+                        ${handover.shift1.notes ? `
+                            <div class="mt-3 pt-3 border-t border-blue-200">
+                                <span class="font-medium text-blue-800">Catatan:</span>
+                                <p class="text-gray-900 mt-1">${handover.shift1.notes}</p>
+                            </div>
+                        ` : ''}
+                    </div>
+                    
+                    <!-- Shift Siang -->
+                    <div class="bg-gradient-to-r from-green-50 to-green-100 border-l-4 border-green-500 rounded-lg p-4">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="text-lg font-semibold text-green-900">â˜€ï¸ Shift Siang (14:00 - 21:00)</h3>
+                            <button onclick="quickEditHandover('${patientId}', 'shift2')" class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700">âœï¸ Edit</button>
+                        </div>
+                        <div class="grid grid-cols-2 md:grid-cols-6 gap-3 text-sm">
+                            <div>
+                                <span class="font-medium text-green-800">Perawat:</span>
+                                <p class="text-gray-900">${handover.shift2.nurse || '-'}</p>
+                            </div>
+                            <div>
+                                <span class="font-medium text-green-800">TD:</span>
+                                <p class="text-gray-900">${handover.shift2.td || '-'}</p>
+                            </div>
+                            <div>
+                                <span class="font-medium text-green-800">Nadi:</span>
+                                <p class="text-gray-900">${handover.shift2.nadi || '-'}</p>
+                            </div>
+                            <div>
+                                <span class="font-medium text-green-800">Suhu:</span>
+                                <p class="text-gray-900">${handover.shift2.suhu || '-'}</p>
+                            </div>
+                            <div>
+                                <span class="font-medium text-green-800">SpO2:</span>
+                                <p class="text-gray-900">${handover.shift2.spo2 || '-'}</p>
+                            </div>
+                            <div>
+                                <span class="font-medium text-green-800">Keluhan:</span>
+                                <p class="text-gray-900">${handover.shift2.keluhan || '-'}</p>
+                            </div>
+                        </div>
+                        ${handover.shift2.notes ? `
+                            <div class="mt-3 pt-3 border-t border-green-200">
+                                <span class="font-medium text-green-800">Catatan:</span>
+                                <p class="text-gray-900 mt-1">${handover.shift2.notes}</p>
+                            </div>
+                        ` : ''}
+                    </div>
+                    
+                    <!-- Shift Malam -->
+                    <div class="bg-gradient-to-r from-purple-50 to-purple-100 border-l-4 border-purple-500 rounded-lg p-4">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="text-lg font-semibold text-purple-900">ðŸŒ™ Shift Malam (21:00 - 07:00)</h3>
+                            <button onclick="quickEditHandover('${patientId}', 'shift3')" class="bg-purple-600 text-white px-3 py-1 rounded text-sm hover:bg-purple-700">âœï¸ Edit</button>
+                        </div>
+                        <div class="grid grid-cols-2 md:grid-cols-6 gap-3 text-sm">
+                            <div>
+                                <span class="font-medium text-purple-800">Perawat:</span>
+                                <p class="text-gray-900">${handover.shift3.nurse || '-'}</p>
+                            </div>
+                            <div>
+                                <span class="font-medium text-purple-800">TD:</span>
+                                <p class="text-gray-900">${handover.shift3.td || '-'}</p>
+                            </div>
+                            <div>
+                                <span class="font-medium text-purple-800">Nadi:</span>
+                                <p class="text-gray-900">${handover.shift3.nadi || '-'}</p>
+                            </div>
+                            <div>
+                                <span class="font-medium text-purple-800">Suhu:</span>
+                                <p class="text-gray-900">${handover.shift3.suhu || '-'}</p>
+                            </div>
+                            <div>
+                                <span class="font-medium text-purple-800">SpO2:</span>
+                                <p class="text-gray-900">${handover.shift3.spo2 || '-'}</p>
+                            </div>
+                            <div>
+                                <span class="font-medium text-purple-800">Keluhan:</span>
+                                <p class="text-gray-900">${handover.shift3.keluhan || '-'}</p>
+                            </div>
+                        </div>
+                        ${handover.shift3.notes ? `
+                            <div class="mt-3 pt-3 border-t border-purple-200">
+                                <span class="font-medium text-purple-800">Catatan:</span>
+                                <p class="text-gray-900 mt-1">${handover.shift3.notes}</p>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        function quickEditHandover(patientId, shift) {
+            if (!handoverData[patientId]) {
+                handoverData[patientId] = {};
+            }
+            if (!handoverData[patientId][currentHandoverDate]) {
+                handoverData[patientId][currentHandoverDate] = {
+                    shift1: { nurse: '', td: '', nadi: '', suhu: '', spo2: '', keluhan: '', notes: '' },
+                    shift2: { nurse: '', td: '', nadi: '', suhu: '', spo2: '', keluhan: '', notes: '' },
+                    shift3: { nurse: '', td: '', nadi: '', suhu: '', spo2: '', keluhan: '', notes: '' }
+                };
+            }
+            
+            const handover = handoverData[patientId][currentHandoverDate][shift];
+            const patient = inpatients.find(p => p.id === patientId);
+            
+            const shiftNames = {
+                'shift1': 'ðŸŒ… Shift Pagi (07:00-14:00)',
+                'shift2': 'â˜€ï¸ Shift Siang (14:00-21:00)', 
+                'shift3': 'ðŸŒ™ Shift Malam (21:00-07:00)'
+            };
+            
+            const colors = {
+                'shift1': 'blue',
+                'shift2': 'green',
+                'shift3': 'purple'
+            };
+            
+            const color = colors[shift];
+            
+            const container = document.getElementById('handoverContainer');
+            container.innerHTML = `
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-semibold text-gray-900">âœï¸ Edit ${shiftNames[shift]} - ${patient.name}</h2>
+                    <div class="space-x-2">
+                        <button onclick="saveQuickHandover('${patientId}', '${shift}')" class="bg-${color}-600 text-white px-4 py-2 rounded-md hover:bg-${color}-700 transition-colors">
+                            ðŸ’¾ Simpan
+                        </button>
+                        <button onclick="selectHandoverPatient('${patientId}', '${patient.name}')" class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors">
+                            âŒ Batal
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="bg-gradient-to-r from-${color}-50 to-${color}-100 border-l-4 border-${color}-500 rounded-lg p-6">
+                    <form id="quickHandoverForm" class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-${color}-800 mb-2">Nama Perawat</label>
+                                <input type="text" id="quickNurse" value="${handover.nurse || ''}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-${color}-500" placeholder="Nama perawat jaga">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-${color}-800 mb-2">Tanggal</label>
+                                <input type="text" value="${new Date(currentHandoverDate).toLocaleDateString('id-ID')}" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100" readonly>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-${color}-800 mb-2">Waktu Shift</label>
+                                <input type="text" value="${shiftNames[shift].split(' ').slice(2).join(' ')}" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100" readonly>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-${color}-800 mb-2">Tekanan Darah</label>
+                                <input type="text" id="quickTD" value="${handover.td || ''}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-${color}-500" placeholder="120/80">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-${color}-800 mb-2">Nadi</label>
+                                <input type="text" id="quickNadi" value="${handover.nadi || ''}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-${color}-500" placeholder="80x/mnt">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-${color}-800 mb-2">Suhu</label>
+                                <input type="text" id="quickSuhu" value="${handover.suhu || ''}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-${color}-500" placeholder="36.5Â°C">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-${color}-800 mb-2">SpO2</label>
+                                <input type="text" id="quickSpO2" value="${handover.spo2 || ''}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-${color}-500" placeholder="98%">
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-${color}-800 mb-2">Keluhan Pasien</label>
+                            <textarea id="quickKeluhan" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-${color}-500" placeholder="Keluhan yang disampaikan pasien">${handover.keluhan || ''}</textarea>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-${color}-800 mb-2">Catatan Perawatan</label>
+                            <textarea id="quickNotes" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-${color}-500" placeholder="Kondisi umum, aktivitas, makan/minum, BAK/BAB, mobilisasi, observasi khusus, dll">${handover.notes || ''}</textarea>
+                        </div>
+                    </form>
+                </div>
+            `;
+        }
+
+        function saveQuickHandover(patientId, shift) {
+            if (!handoverData[patientId]) {
+                handoverData[patientId] = {};
+            }
+            if (!handoverData[patientId][currentHandoverDate]) {
+                handoverData[patientId][currentHandoverDate] = {
+                    shift1: { nurse: '', td: '', nadi: '', suhu: '', spo2: '', keluhan: '', notes: '' },
+                    shift2: { nurse: '', td: '', nadi: '', suhu: '', spo2: '', keluhan: '', notes: '' },
+                    shift3: { nurse: '', td: '', nadi: '', suhu: '', spo2: '', keluhan: '', notes: '' }
+                };
+            }
+            
+            const handover = handoverData[patientId][currentHandoverDate][shift];
+            const patient = inpatients.find(p => p.id === patientId);
+            
+            handover.nurse = document.getElementById('quickNurse').value;
+            handover.td = document.getElementById('quickTD').value;
+            handover.nadi = document.getElementById('quickNadi').value;
+            handover.suhu = document.getElementById('quickSuhu').value;
+            handover.spo2 = document.getElementById('quickSpO2').value;
+            handover.keluhan = document.getElementById('quickKeluhan').value;
+            handover.notes = document.getElementById('quickNotes').value;
+            
+            // Save to localStorage
+            saveToLocalStorage();
+            
+            selectHandoverPatient(patientId, patient.name);
+            
+            alert('âœ… Data operan berhasil disimpan!');
+        }
+
+        function editHandover(patientId, shift) {
+            if (!handoverData[patientId]) {
+                handoverData[patientId] = {};
+            }
+            if (!handoverData[patientId][currentHandoverDate]) {
+                handoverData[patientId][currentHandoverDate] = {
+                    shift1: { nurse: '', td: '', nadi: '', suhu: '', spo2: '', keluhan: '', plan: '', notes: '' },
+                    shift2: { nurse: '', td: '', nadi: '', suhu: '', spo2: '', keluhan: '', plan: '', notes: '' },
+                    shift3: { nurse: '', td: '', nadi: '', suhu: '', spo2: '', keluhan: '', plan: '', notes: '' }
+                };
+            }
+            
+            const handover = handoverData[patientId][currentHandoverDate][shift];
+            const patient = inpatients.find(p => p.id === patientId);
+            
+            const shiftNames = {
+                'shift1': 'Shift Pagi (07:00-14:00)',
+                'shift2': 'Shift Siang (14:00-21:00)', 
+                'shift3': 'Shift Malam (21:00-07:00)'
+            };
+            
+            const container = document.getElementById('handoverContainer');
+            container.innerHTML = `
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-semibold text-gray-900">Edit ${shiftNames[shift]} - ${patient.name}</h2>
+                    <div class="space-x-2">
+                        <button onclick="saveHandover('${patientId}', '${shift}')" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors">
+                            Simpan
+                        </button>
+                        <button onclick="selectHandoverPatient('${patientId}', '${patient.name}')" class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors">
+                            Batal
+                        </button>
+                    </div>
+                </div>
+                
+                <form id="editHandoverForm" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Nama Perawat</label>
+                            <input type="text" id="editNurse" value="${handover.nurse || ''}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal</label>
+                            <input type="text" value="${new Date(currentHandoverDate).toLocaleDateString('id-ID')}" class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100" readonly>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Tekanan Darah</label>
+                            <input type="text" id="editTD" value="${handover.td || ''}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="120/80">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Nadi</label>
+                            <input type="text" id="editNadi" value="${handover.nadi || ''}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="80x/mnt">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Suhu</label>
+                            <input type="text" id="editSuhu" value="${handover.suhu || ''}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="36.5Â°C">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">SpO2</label>
+                            <input type="text" id="editSpO2" value="${handover.spo2 || ''}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="98%">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Keluhan</label>
+                        <textarea id="editKeluhan" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Keluhan pasien saat ini">${handover.keluhan || ''}</textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Rencana Tindakan</label>
+                        <textarea id="editPlan" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Rencana asuhan keperawatan, tindakan yang akan dilakukan">${handover.plan || ''}</textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Catatan</label>
+                        <textarea id="editNotes" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Kondisi pasien, aktivitas, makan/minum, BAK/BAB, mobilisasi, observasi khusus">${handover.notes || ''}</textarea>
+                    </div>
+                </form>
+            `;
+        }
+
+        function saveHandover(patientId, shift) {
+            if (!handoverData[patientId]) {
+                handoverData[patientId] = {};
+            }
+            if (!handoverData[patientId][currentHandoverDate]) {
+                handoverData[patientId][currentHandoverDate] = {
+                    shift1: { nurse: '', td: '', nadi: '', suhu: '', spo2: '', keluhan: '', plan: '', notes: '' },
+                    shift2: { nurse: '', td: '', nadi: '', suhu: '', spo2: '', keluhan: '', plan: '', notes: '' },
+                    shift3: { nurse: '', td: '', nadi: '', suhu: '', spo2: '', keluhan: '', plan: '', notes: '' }
+                };
+            }
+            
+            const handover = handoverData[patientId][currentHandoverDate][shift];
+            const patient = inpatients.find(p => p.id === patientId);
+            
+            handover.nurse = document.getElementById('editNurse').value;
+            handover.td = document.getElementById('editTD').value;
+            handover.nadi = document.getElementById('editNadi').value;
+            handover.suhu = document.getElementById('editSuhu').value;
+            handover.spo2 = document.getElementById('editSpO2').value;
+            handover.keluhan = document.getElementById('editKeluhan').value;
+            handover.plan = document.getElementById('editPlan').value;
+            handover.notes = document.getElementById('editNotes').value;
+            
+            selectHandoverPatient(patientId, patient.name);
+            
+            alert('Data operan berhasil disimpan!');
+        }
+
+        function changeHandoverDate(patientId, patientName, days) {
+            const currentDate = new Date(currentHandoverDate);
+            currentDate.setDate(currentDate.getDate() + days);
+            currentHandoverDate = currentDate.toISOString().split('T')[0];
+            selectHandoverPatient(patientId, patientName);
+        }
+
+        function setHandoverDate(patientId, patientName, date) {
+            currentHandoverDate = date;
+            selectHandoverPatient(patientId, patientName);
+        }
+
+        function generateMedicationSchedule(medications) {
+            if (!medications || medications.length === 0) {
+                return '<p class="text-gray-500 text-center py-4">Belum ada obat yang diresepkan</p>';
+            }
+
+            // Heart medications that should be separated
+            const heartMeds = ['digoxin', 'digitalis', 'lanoxin', 'captopril', 'lisinopril', 'enalapril', 'ramipril', 'bisoprolol', 'metoprolol', 'carvedilol', 'propranolol'];
+            
+            // Group medications by route
+            const medicationsByRoute = {};
+            medications.forEach(med => {
+                if (!medicationsByRoute[med.route]) {
+                    medicationsByRoute[med.route] = [];
+                }
+                medicationsByRoute[med.route].push(med);
+            });
+
+            let scheduleHtml = '';
+            
+            // Generate 7-day schedule
+            const today = new Date();
+            const dates = [];
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(today);
+                date.setDate(today.getDate() + i);
+                dates.push(date);
+            }
+
+            Object.keys(medicationsByRoute).forEach((route, routeIndex) => {
+                if (routeIndex > 0) {
+                    scheduleHtml += '<div class="mt-6 border-t-4 border-blue-500 pt-4"></div>';
+                }
+                
+                scheduleHtml += `
+                    <div class="mb-4">
+                        <h5 class="text-md font-semibold text-gray-900 mb-2 bg-blue-100 px-3 py-2 rounded">
+                            Rute Pemberian: ${route} (${medicationsByRoute[route].length} obat)
+                        </h5>
+                        <div class="overflow-x-auto">
+                            <table class="w-full border border-gray-300 text-xs">
+                                <thead class="bg-gray-100">
+                                    <tr>
+                                        <th class="border border-gray-300 px-2 py-2 text-left sticky left-0 bg-gray-100">Nama Obat</th>
+                                        <th class="border border-gray-300 px-2 py-2 text-center">Dosis</th>
+                `;
+
+                // Add date headers for 7 days
+                dates.forEach(date => {
+                    const dateStr = date.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit' });
+                    const dayStr = date.toLocaleDateString('id-ID', { weekday: 'short' });
+                    scheduleHtml += `
+                        <th class="border border-gray-300 px-1 py-2 text-center text-xs">
+                            ${dayStr}<br>${dateStr}
+                        </th>
+                    `;
+                });
+
+                scheduleHtml += `
+                                        <th class="border border-gray-300 px-2 py-2 text-center">Keterangan</th>
+                                    </tr>
+                                    <tr class="bg-gray-50">
+                                        <th class="border border-gray-300 px-2 py-1 text-xs sticky left-0 bg-gray-50">Jam Pemberian</th>
+                                        <th class="border border-gray-300 px-2 py-1 text-xs">Frekuensi</th>
+                `;
+
+                // Add time slots for each day based on route
+                dates.forEach(() => {
+                    const timeHeaders = route === 'IV' ? '<div>08</div><div>16</div><div>20</div>' : '<div>06</div><div>12</div><div>18</div>';
+                    scheduleHtml += `
+                        <th class="border border-gray-300 px-1 py-1 text-xs">
+                            <div class="grid grid-cols-3 gap-1 text-xs">
+                                ${timeHeaders}
+                            </div>
+                        </th>
+                    `;
+                });
+
+                scheduleHtml += `
+                                        <th class="border border-gray-300 px-2 py-1 text-xs">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                `;
+
+                medicationsByRoute[route].forEach(med => {
+                    const frequency = extractFrequency(med.dose);
+                    const isHeartMed = heartMeds.some(heartMed => med.name.toLowerCase().includes(heartMed));
+                    const times = calculateMedicationTimes(frequency, isHeartMed, med.route);
+                    
+                    scheduleHtml += `
+                        <tr>
+                            <td class="border border-gray-300 px-2 py-2 font-medium sticky left-0 bg-white">${med.name}</td>
+                            <td class="border border-gray-300 px-2 py-2 text-center">${med.dose}</td>
+                    `;
+
+                    // Add checkboxes for each day
+                    dates.forEach((date, dayIndex) => {
+                        const dateId = date.toISOString().split('T')[0];
+                        scheduleHtml += `
+                            <td class="border border-gray-300 px-1 py-2 text-center">
+                                <div class="grid grid-cols-3 gap-1">
+                        `;
+                        
+                        // Use different time slots based on route
+                        const timeSlots = route === 'IV' ? ['08:00', '16:00', '20:00'] : ['06:00', '12:00', '18:00'];
+                        
+                        timeSlots.forEach(time => {
+                            const isScheduled = times.includes(time) || (time === '24:00' && times.includes('24:00'));
+                            const checkboxId = `med_${med.name.replace(/\s+/g, '_')}_${dateId}_${time.replace(':', '')}`;
+                            
+                            if (isScheduled) {
+                                scheduleHtml += `
+                                    <input type="checkbox" id="${checkboxId}" class="w-3 h-3 text-blue-600 rounded" 
+                                           onchange="saveMedicationStatus('${checkboxId}', this.checked)">
+                                `;
+                            } else {
+                                scheduleHtml += '<div class="w-3 h-3"></div>';
+                            }
+                        });
+                        
+                        scheduleHtml += `
+                                </div>
+                            </td>
+                        `;
+                    });
+
+                    scheduleHtml += `
+                            <td class="border border-gray-300 px-2 py-2 text-xs">${isHeartMed && frequency === 1 ? 'Obat jantung - terpisah' : ''}</td>
+                        </tr>
+                    `;
+                });
+
+                scheduleHtml += `
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            });
+
+            return scheduleHtml;
+        }
+
+        function saveMedicationStatus(checkboxId, isChecked) {
+            // Save medication administration status to localStorage
+            const medicationStatus = JSON.parse(localStorage.getItem('medicationStatus') || '{}');
+            medicationStatus[checkboxId] = isChecked;
+            localStorage.setItem('medicationStatus', JSON.stringify(medicationStatus));
+        }
+
+        function loadMedicationStatus() {
+            // Load and restore medication status from localStorage
+            const medicationStatus = JSON.parse(localStorage.getItem('medicationStatus') || '{}');
+            Object.keys(medicationStatus).forEach(checkboxId => {
+                const checkbox = document.getElementById(checkboxId);
+                if (checkbox) {
+                    checkbox.checked = medicationStatus[checkboxId];
+                }
+            });
+        }
+
+        function extractFrequency(doseString) {
+            // Extract frequency from dose string like "500mg 3x1" or "1 tab 2x1"
+            const match = doseString.match(/(\d+)x\d+/);
+            return match ? parseInt(match[1]) : 1;
+        }
+
+        function calculateMedicationTimes(frequency, isHeartMed = false, route = 'PO') {
+            const times = [];
+            
+            // Different schedules for IV vs PO medications
+            if (route === 'IV') {
+                // IV medications use 8, 16, 20, 24 schedule
+                if (frequency === 1) {
+                    times.push('08:00');
+                } else if (frequency === 2) {
+                    times.push('08:00', '20:00');
+                } else if (frequency === 3) {
+                    times.push('08:00', '16:00', '24:00');
+                } else if (frequency === 4) {
+                    times.push('08:00', '16:00', '20:00', '24:00');
+                } else if (frequency > 4) {
+                    // For more than 4 times, distribute evenly across 24 hours
+                    const interval = 24 / frequency;
+                    for (let i = 0; i < frequency; i++) {
+                        const hour = Math.round(8 + (i * interval)) % 24;
+                        const timeString = hour.toString().padStart(2, '0') + ':00';
+                        times.push(timeString);
+                    }
+                }
+            } else {
+                // PO medications use original 6, 12, 18 schedule
+                if (frequency === 1) {
+                    if (isHeartMed) {
+                        times.push('08:00'); // Heart meds at 8 AM to avoid interaction
+                    } else {
+                        times.push('06:00');
+                    }
+                } else if (frequency === 2) {
+                    times.push('06:00', '18:00');
+                } else if (frequency === 3) {
+                    times.push('06:00', '12:00', '18:00');
+                } else if (frequency === 4) {
+                    times.push('06:00', '12:00', '18:00', '22:00');
+                } else if (frequency > 4) {
+                    // For more than 4 times, distribute evenly across 24 hours
+                    const interval = 24 / frequency;
+                    for (let i = 0; i < frequency; i++) {
+                        const hour = Math.round(6 + (i * interval)) % 24;
+                        const timeString = hour.toString().padStart(2, '0') + ':00';
+                        times.push(timeString);
+                    }
+                }
+            }
+            
+            return times;
+        }
+
+        function printHandoverReport(patientId) {
+            const patient = inpatients.find(p => p.id === patientId);
+            if (!patient) return;
+
+            const handover = handoverData[patientId] && handoverData[patientId][currentHandoverDate] ? 
+                handoverData[patientId][currentHandoverDate] : {
+                    shift1: { nurse: '', td: '', nadi: '', suhu: '', spo2: '', keluhan: '', notes: '' },
+                    shift2: { nurse: '', td: '', nadi: '', suhu: '', spo2: '', keluhan: '', notes: '' },
+                    shift3: { nurse: '', td: '', nadi: '', suhu: '', spo2: '', keluhan: '', notes: '' }
+                };
+
+            const printWindow = window.open('', '_blank');
+            
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Operan Harian Perawat - ${patient.name}</title>
+                    <style>
+                        @page { 
+                            size: A4; 
+                            margin: 1.5cm; 
+                        }
+                        body { 
+                            font-family: Arial, sans-serif; 
+                            font-size: 12px; 
+                            margin: 0; 
+                            padding: 20px;
+                        }
+                        .header { 
+                            text-align: center; 
+                            margin-bottom: 20px; 
+                            border-bottom: 2px solid #000;
+                            padding-bottom: 10px;
+                        }
+                        .patient-info { 
+                            margin-bottom: 20px; 
+                            display: grid;
+                            grid-template-columns: 1fr 1fr;
+                            gap: 20px;
+                        }
+                        .shift-section {
+                            margin-bottom: 25px;
+                            border: 1px solid #ccc;
+                            border-radius: 5px;
+                            padding: 15px;
+                        }
+                        .shift-header {
+                            font-weight: bold;
+                            font-size: 14px;
+                            margin-bottom: 10px;
+                            padding: 8px;
+                            border-radius: 3px;
+                        }
+                        .shift-pagi { background-color: #dbeafe; }
+                        .shift-siang { background-color: #dcfce7; }
+                        .shift-malam { background-color: #f3e8ff; }
+                        .vital-signs {
+                            display: grid;
+                            grid-template-columns: repeat(4, 1fr);
+                            gap: 15px;
+                            margin-bottom: 10px;
+                        }
+                        .vital-item {
+                            border: 1px solid #ddd;
+                            padding: 8px;
+                            border-radius: 3px;
+                            text-align: center;
+                        }
+                        .vital-label {
+                            font-weight: bold;
+                            font-size: 10px;
+                            color: #666;
+                        }
+                        .vital-value {
+                            font-size: 14px;
+                            font-weight: bold;
+                            margin-top: 3px;
+                        }
+                        .notes-section {
+                            margin-top: 10px;
+                            padding: 10px;
+                            background-color: #f9f9f9;
+                            border-radius: 3px;
+                        }
+                        .signature {
+                            margin-top: 40px;
+                            display: grid;
+                            grid-template-columns: 1fr 1fr 1fr;
+                            gap: 50px;
+                            text-align: center;
+                        }
+                        .signature-line {
+                            border-top: 1px solid #000;
+                            margin-top: 60px;
+                            padding-top: 5px;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h2>OPERAN HARIAN PERAWAT</h2>
+                        <h3>RUMAH SAKIT UMUM DAERAH</h3>
+                        <p>Tanggal: ${new Date(currentHandoverDate).toLocaleDateString('id-ID', { 
+                            weekday: 'long', 
+                            year: 'numeric', 
+                            month: 'long', 
+                            day: 'numeric' 
+                        })}</p>
+                    </div>
+                    
+                    <div class="patient-info">
+                        <div>
+                            <strong>Nama Pasien:</strong> ${patient.name}<br>
+                            <strong>No. RM:</strong> ${patient.id}<br>
+                            <strong>Ruang:</strong> ${patient.room}<br>
+                            <strong>Umur:</strong> ${patient.age}
+                        </div>
+                        <div>
+                            <strong>Jenis Kelamin:</strong> ${patient.gender}<br>
+                            <strong>Diagnosa:</strong> ${patient.diagnosis}<br>
+                            <strong>DPJP:</strong> ${patient.doctors[0] || '-'}
+                        </div>
+                    </div>
+                    
+                    <div class="shift-section">
+                        <div class="shift-header shift-pagi">ðŸŒ… SHIFT PAGI (07:00 - 14:00)</div>
+                        <div><strong>Perawat Jaga:</strong> ${handover.shift1.nurse || '-'}</div>
+                        <div class="vital-signs">
+                            <div class="vital-item">
+                                <div class="vital-label">Tekanan Darah</div>
+                                <div class="vital-value">${handover.shift1.td || '-'}</div>
+                            </div>
+                            <div class="vital-item">
+                                <div class="vital-label">Nadi</div>
+                                <div class="vital-value">${handover.shift1.nadi || '-'}</div>
+                            </div>
+                            <div class="vital-item">
+                                <div class="vital-label">Suhu</div>
+                                <div class="vital-value">${handover.shift1.suhu || '-'}</div>
+                            </div>
+                            <div class="vital-item">
+                                <div class="vital-label">SpO2</div>
+                                <div class="vital-value">${handover.shift1.spo2 || '-'}</div>
+                            </div>
+                        </div>
+                        <div><strong>Keluhan:</strong> ${handover.shift1.keluhan || '-'}</div>
+                        ${handover.shift1.notes ? `<div class="notes-section"><strong>Catatan:</strong><br>${handover.shift1.notes}</div>` : ''}
+                    </div>
+                    
+                    <div class="shift-section">
+                        <div class="shift-header shift-siang">â˜€ï¸ SHIFT SIANG (14:00 - 21:00)</div>
+                        <div><strong>Perawat Jaga:</strong> ${handover.shift2.nurse || '-'}</div>
+                        <div class="vital-signs">
+                            <div class="vital-item">
+                                <div class="vital-label">Tekanan Darah</div>
+                                <div class="vital-value">${handover.shift2.td || '-'}</div>
+                            </div>
+                            <div class="vital-item">
+                                <div class="vital-label">Nadi</div>
+                                <div class="vital-value">${handover.shift2.nadi || '-'}</div>
+                            </div>
+                            <div class="vital-item">
+                                <div class="vital-label">Suhu</div>
+                                <div class="vital-value">${handover.shift2.suhu || '-'}</div>
+                            </div>
+                            <div class="vital-item">
+                                <div class="vital-label">SpO2</div>
+                                <div class="vital-value">${handover.shift2.spo2 || '-'}</div>
+                            </div>
+                        </div>
+                        <div><strong>Keluhan:</strong> ${handover.shift2.keluhan || '-'}</div>
+                        ${handover.shift2.notes ? `<div class="notes-section"><strong>Catatan:</strong><br>${handover.shift2.notes}</div>` : ''}
+                    </div>
+                    
+                    <div class="shift-section">
+                        <div class="shift-header shift-malam">ðŸŒ™ SHIFT MALAM (21:00 - 07:00)</div>
+                        <div><strong>Perawat Jaga:</strong> ${handover.shift3.nurse || '-'}</div>
+                        <div class="vital-signs">
+                            <div class="vital-item">
+                                <div class="vital-label">Tekanan Darah</div>
+                                <div class="vital-value">${handover.shift3.td || '-'}</div>
+                            </div>
+                            <div class="vital-item">
+                                <div class="vital-label">Nadi</div>
+                                <div class="vital-value">${handover.shift3.nadi || '-'}</div>
+                            </div>
+                            <div class="vital-item">
+                                <div class="vital-label">Suhu</div>
+                                <div class="vital-value">${handover.shift3.suhu || '-'}</div>
+                            </div>
+                            <div class="vital-item">
+                                <div class="vital-label">SpO2</div>
+                                <div class="vital-value">${handover.shift3.spo2 || '-'}</div>
+                            </div>
+                        </div>
+                        <div><strong>Keluhan:</strong> ${handover.shift3.keluhan || '-'}</div>
+                        ${handover.shift3.notes ? `<div class="notes-section"><strong>Catatan:</strong><br>${handover.shift3.notes}</div>` : ''}
+                    </div>
+                    
+                    <div class="signature">
+                        <div>
+                            <div>Kepala Ruang</div>
+                            <div class="signature-line">(...........................)</div>
+                        </div>
+                        <div>
+                            <div>Perawat Shift Pagi</div>
+                            <div class="signature-line">${handover.shift1.nurse || '(...........................)'}</div>
+                        </div>
+                        <div>
+                            <div>Perawat Shift Siang</div>
+                            <div class="signature-line">${handover.shift2.nurse || '(...........................)'}</div>
+                        </div>
+                    </div>
+                </body>
+                </html>
+            `);
+            
+            printWindow.document.close();
+            printWindow.focus();
+            
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+            }, 250);
+        }
+
+        function printMedicationSchedule(patientId) {
+            const patient = inpatients.find(p => p.id === patientId);
+            if (!patient) return;
+
+            const printWindow = window.open('', '_blank');
+            const scheduleTable = generateMedicationSchedule(patient.medications);
+            
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Jadwal Pemberian Obat - ${patient.name}</title>
+                    <style>
+                        @page { 
+                            size: A4 landscape; 
+                            margin: 1cm; 
+                        }
+                        body { 
+                            font-family: Arial, sans-serif; 
+                            font-size: 12px; 
+                            margin: 0; 
+                            padding: 20px;
+                        }
+                        .header { 
+                            text-align: center; 
+                            margin-bottom: 20px; 
+                            border-bottom: 2px solid #000;
+                            padding-bottom: 10px;
+                        }
+                        .patient-info { 
+                            margin-bottom: 20px; 
+                            display: flex;
+                            justify-content: space-between;
+                        }
+                        table { 
+                            width: 100%; 
+                            border-collapse: collapse; 
+                            margin-bottom: 20px;
+                        }
+                        th, td { 
+                            border: 1px solid #000; 
+                            padding: 8px; 
+                            text-align: left; 
+                        }
+                        th { 
+                            background-color: #f0f0f0; 
+                            font-weight: bold;
+                            text-align: center;
+                        }
+                        .center { text-align: center; }
+                        .footer {
+                            margin-top: 30px;
+                            display: flex;
+                            justify-content: space-between;
+                        }
+                        .signature {
+                            text-align: center;
+                            width: 200px;
+                        }
+                        .signature-line {
+                            border-top: 1px solid #000;
+                            margin-top: 60px;
+                            padding-top: 5px;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h2>JADWAL PEMBERIAN OBAT</h2>
+                        <h3>RUMAH SAKIT UMUM DAERAH</h3>
+                    </div>
+                    
+                    <div class="patient-info">
+                        <div>
+                            <strong>Nama Pasien:</strong> ${patient.name}<br>
+                            <strong>No. RM:</strong> ${patient.id}<br>
+                            <strong>Ruang:</strong> ${patient.room}
+                        </div>
+                        <div>
+                            <strong>Tanggal:</strong> ${new Date().toLocaleDateString('id-ID')}<br>
+                            <strong>Umur:</strong> ${patient.age}<br>
+                            <strong>Jenis Kelamin:</strong> ${patient.gender}
+                        </div>
+                    </div>
+                    
+                    ${scheduleTable}
+                    
+                    <div style="margin-top: 1.5rem; font-size: 9px; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                        <div>
+                            <p><strong>Jadwal Pemberian Obat:</strong></p>
+                            <ul style="margin: 0; padding-left: 1rem; font-size: 8px;">
+                                <li><strong>Injeksi 3x:</strong> 08:00, 16:00, 24:00</li>
+                                <li><strong>Injeksi 2x:</strong> 08:00, 20:00</li>
+                                <li><strong>Injeksi 1x:</strong> 08:00</li>
+                                <li><strong>Oral 3x:</strong> 06:00, 12:00, 18:00</li>
+                                <li><strong>Oral 2x:</strong> 06:00, 18:00</li>
+                                <li><strong>Oral 1x:</strong> 06:00 (pagi) atau 18:00 (sore)*</li>
+                            </ul>
+                            <p style="font-size: 7px; margin-top: 0.5rem;"><em>*Atorvastatin, Bisoprolol, Candesartan: diberikan sore hari</em></p>
+                        </div>
+                        <div>
+                            <p><strong>Keterangan:</strong></p>
+                            <ul style="margin: 0; padding-left: 1rem;">
+                                <li>Beri tanda âœ“ pada kotak setelah obat diberikan</li>
+                                <li>Catat reaksi alergi atau efek samping</li>
+                                <li>Laporkan segera jika ada reaksi yang tidak diinginkan</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="footer">
+                        <div class="signature">
+                            <div>Dokter Penanggung Jawab</div>
+                            <div class="signature-line">${patient.doctors[0] || ''}</div>
+                        </div>
+                        <div class="signature">
+                            <div>Perawat Penanggung Jawab</div>
+                            <div class="signature-line">(...........................)</div>
+                        </div>
+                        <div class="signature">
+                            <div>Apoteker</div>
+                            <div class="signature-line">(...........................)</div>
+                        </div>
+                    </div>
+                </body>
+                </html>
+            `);
+            
+            printWindow.document.close();
+            printWindow.focus();
+            
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+            }, 250);
+        }
+
+
+
+        function showDoctorPatients(doctorName) {
+            const patients = inpatients.filter(p => p.doctors.includes(doctorName));
+            const shortName = doctorName.split(',')[0];
+            
+            document.getElementById('modalDoctorName').textContent = `Pasien ${shortName}`;
+            
+            const patientList = patients.map(patient => {
+                const genderIcon = patient.gender === 'Laki-laki' ? 'ðŸ‘¨' : 'ðŸ‘©';
+                return `
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-blue-50 cursor-pointer transition-colors" onclick="selectPatientFromModal('${patient.id}', '${patient.name}')">
+                        <div class="flex items-center">
+                            <div class="text-lg mr-3">${genderIcon}</div>
+                            <div>
+                                <div class="font-medium text-gray-900">${patient.name}</div>
+                                <div class="text-sm text-gray-500">RM: ${patient.id} â€¢ ${patient.room}</div>
+                            </div>
+                        </div>
+                        <div class="text-xs text-gray-500">${patient.age}</div>
+                    </div>
+                `;
+            }).join('');
+            
+            document.getElementById('modalPatientList').innerHTML = patientList;
+            document.getElementById('doctorPatientsModal').classList.remove('hidden');
+        }
+
+        function closeDoctorModal() {
+            document.getElementById('doctorPatientsModal').classList.add('hidden');
+        }
+
+        function selectPatientFromModal(patientId, patientName) {
+            closeDoctorModal();
+            showTab('rawat-inap');
+            setTimeout(() => {
+                selectPatient(patientId, patientName);
+            }, 100);
+        }
+
+        // Initialize the page
+        loadFromLocalStorage(); // Load saved data first
+        displayMotivationalQuote(); // Show daily quote
+        updateInpatientList();
+        updateHandoverPatientList();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9884245184cf0fad',t:'MTc1OTQwNzUwMS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
